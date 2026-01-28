@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Atlas Racing Splash</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #05060c;
+        font-family: 'Oxanium', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        overflow: hidden;
+      }
+
+      .logo {
+        position: relative;
+        width: min(480px, 80vw);
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+        animation: reveal 2.5s ease forwards;
+      }
+
+      @keyframes reveal {
+        0% {
+          opacity: 0;
+          transform: translateY(20px) scale(0.96);
+        }
+        35% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        70% {
+          opacity: 1;
+          transform: translateY(0) scale(1.01);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+    <img
+      src="./atlas-racing-full-dark.png"
+      alt="Atlas Racing"
+      class="logo"
+      draggable="false"
+    />
+  </body>
+</html>

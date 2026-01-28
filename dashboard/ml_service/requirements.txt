@@ -1,0 +1,16 @@
+# Atlas AI ML Service Dependencies
+
+# Web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
+
+# Data validation
+pydantic>=2.5.0
+
+# ML libraries (for future LSTM upgrade)
+# torch>=2.1.0  # Uncomment when implementing LSTM
+# numpy>=1.24.0
+
+# For development
+python-dotenv>=1.0.0

@@ -1,0 +1,116 @@
+{
+  "raceId": "S1_control_R1_Melbourne",
+  "date": "2026-01-27T18:45:38.497Z",
+  "track": "Melbourne",
+  "trackId": 0,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 1,
+  "totalLaps": 29,
+  "difficulty": 0,
+  "startingPosition": 18,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": false,
+  "bestLapMs": 82417,
+  "avgLapMs": 98196,
+  "pitStops": [
+    {
+      "lap": 8,
+      "compoundFrom": "Hard",
+      "compoundTo": "Inter",
+      "tireAgeAtStop": 0,
+      "tireWearAtStop": 0,
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 13,
+      "compoundFrom": "Inter",
+      "compoundTo": "Wet",
+      "tireAgeAtStop": 0,
+      "tireWearAtStop": 0,
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 17,
+      "compoundFrom": "Wet",
+      "compoundTo": "Inter",
+      "tireAgeAtStop": 0,
+      "tireWearAtStop": 0,
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 27,
+      "compoundFrom": "Inter",
+      "compoundTo": "Medium",
+      "tireAgeAtStop": 0,
+      "tireWearAtStop": 0,
+      "positionBefore": 2,
+      "positionAfter": 2,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 4,
+  "weatherChanges": [
+    {
+      "lap": 1,
+      "from": "Light Cloud",
+      "to": "Clear"
+    },
+    {
+      "lap": 2,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 5,
+      "from": "Light Cloud",
+      "to": "Overcast"
+    },
+    {
+      "lap": 7,
+      "from": "Overcast",
+      "to": "Light Rain"
+    },
+    {
+      "lap": 12,
+      "from": "Light Rain",
+      "to": "Storm"
+    },
+    {
+      "lap": 21,
+      "from": "Storm",
+      "to": "Light Rain"
+    },
+    {
+      "lap": 28,
+      "from": "Light Rain",
+      "to": "Overcast"
+    },
+    {
+      "lap": 29,
+      "from": "Overcast",
+      "to": "Light Cloud"
+    }
+  ],
+  "safetyCars": 1,
+  "virtualSafetyCars": 1,
+  "llmTotalCalls": 37,
+  "llmAvgLatencyMs": 2512,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 4,
+  "llmERSCalls": 14,
+  "llmDriverQuestions": 18,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. Started P18 and finished P1. stop-1 on lap8 because of light rain from hards to inters, stop-2 on lap13 because of storm from inters to wets, stop-3 on lap17 because of light rain from wets to inters and final stop on lap-27 because of dry from inters to mediums could've gone for softs. Did not follow Race Engineer at all. 29 laps completed."
+}

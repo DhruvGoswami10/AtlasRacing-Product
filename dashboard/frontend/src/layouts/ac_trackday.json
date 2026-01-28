@@ -1,0 +1,43 @@
+{
+  "name": "AC Track Day",
+  "description": "Clean layout optimized for real track day use with detailed tire analysis",
+  "game": "ac",
+  "widgets": [
+    {
+      "type": "speed",
+      "position": { "x": 0, "y": 0, "w": 2, "h": 2 }
+    },
+    {
+      "type": "rpm",
+      "position": { "x": 2, "y": 0, "w": 2, "h": 2 }
+    },
+    {
+      "type": "gear",
+      "position": { "x": 4, "y": 0, "w": 1, "h": 2 }
+    },
+    {
+      "type": "throttle-brake",
+      "position": { "x": 5, "y": 0, "w": 1, "h": 2 }
+    },
+    {
+      "type": "detailed-tire",
+      "position": { "x": 0, "y": 2, "w": 3, "h": 3 }
+    },
+    {
+      "type": "lap-info",
+      "position": { "x": 3, "y": 2, "w": 2, "h": 2 }
+    },
+    {
+      "type": "performance-meter",
+      "position": { "x": 5, "y": 2, "w": 1, "h": 2 }
+    },
+    {
+      "type": "track-conditions",
+      "position": { "x": 3, "y": 4, "w": 2, "h": 1 }
+    },
+    {
+      "type": "suspension",
+      "position": { "x": 5, "y": 4, "w": 1, "h": 1 }
+    }
+  ]
+}

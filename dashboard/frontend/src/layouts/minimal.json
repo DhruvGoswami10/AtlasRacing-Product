@@ -1,0 +1,41 @@
+{
+  "id": "minimal",
+  "name": "Minimal Dashboard",
+  "description": "Clean, minimal layout focusing on essential telemetry only",
+  "widgets": [
+    {
+      "id": "speed",
+      "type": "SpeedWidget",
+      "position": { "x": 20, "y": 20 },
+      "size": { "width": 200, "height": 180 },
+      "config": {
+        "showDelta": false,
+        "unit": "kph",
+        "maxSpeed": 350
+      }
+    },
+    {
+      "id": "gear",
+      "type": "GearWidget",
+      "position": { "x": 240, "y": 20 },
+      "size": { "width": 120, "height": 180 }
+    },
+    {
+      "id": "lapinfo",
+      "type": "LapInfoWidget",
+      "position": { "x": 380, "y": 20 },
+      "size": { "width": 260, "height": 180 },
+      "config": {
+        "showSectors": false,
+        "showDeltas": false,
+        "precision": 2
+      }
+    },
+    {
+      "id": "sectortiming",
+      "type": "SectorTimingWidget",
+      "position": { "x": 660, "y": 20 },
+      "size": { "width": 240, "height": 300 }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "professional",
+  "name": "Professional Dashboard",
+  "description": "Complete telemetry setup with track map, session info, and advanced tyre data for professional sim racing",
+  "widgets": [
+    {
+      "id": "speed",
+      "type": "SpeedWidget",
+      "position": { "x": 20, "y": 20 },
+      "size": { "width": 160, "height": 140 },
+      "config": {
+        "showDelta": true,
+        "unit": "kph",
+        "maxSpeed": 350
+      }
+    },
+    {
+      "id": "rpm",
+      "type": "RPMWidget",
+      "position": { "x": 200, "y": 20 },
+      "size": { "width": 160, "height": 140 },
+      "config": {
+        "showRedline": true,
+        "maxRPM": 13000,
+        "redlineRPM": 11500
+      }
+    },
+    {
+      "id": "gear",
+      "type": "GearWidget",
+      "position": { "x": 380, "y": 20 },
+      "size": { "width": 80, "height": 140 }
+    },
+    {
+      "id": "throttlebrake",
+      "type": "ThrottleBrakeWidget",
+      "position": { "x": 480, "y": 20 },
+      "size": { "width": 160, "height": 140 }
+    },
+    {
+      "id": "ers",
+      "type": "ERSWidget",
+      "position": { "x": 660, "y": 20 },
+      "size": { "width": 140, "height": 140 }
+    },
+    {
+      "id": "drs",
+      "type": "DRSWidget",
+      "position": { "x": 820, "y": 20 },
+      "size": { "width": 120, "height": 140 }
+    },
+    {
+      "id": "fuel",
+      "type": "FuelWidget",
+      "position": { "x": 960, "y": 20 },
+      "size": { "width": 140, "height": 140 }
+    },
+    {
+      "id": "trackmap",
+      "type": "TrackMapWidget",
+      "position": { "x": 1120, "y": 20 },
+      "size": { "width": 220, "height": 140 }
+    },
+    {
+      "id": "sessioninfo",
+      "type": "SessionInfoWidget",
+      "position": { "x": 1360, "y": 20 },
+      "size": { "width": 180, "height": 140 }
+    },
+    {
+      "id": "lapinfo",
+      "type": "LapInfoWidget",
+      "position": { "x": 20, "y": 180 },
+      "size": { "width": 280, "height": 200 },
+      "config": {
+        "showSectors": true,
+        "showDeltas": true,
+        "precision": 3
+      }
+    },
+    {
+      "id": "advancedtyres",
+      "type": "AdvancedTyreWidget",
+      "position": { "x": 320, "y": 180 },
+      "size": { "width": 320, "height": 200 }
+    },
+    {
+      "id": "tyres",
+      "type": "TyreWidget",
+      "position": { "x": 660, "y": 180 },
+      "size": { "width": 280, "height": 200 }
+    }
+  ]
+}

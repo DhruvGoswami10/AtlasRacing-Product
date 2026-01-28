@@ -1,0 +1,705 @@
+@tailwind base;
+@tailwind components;  
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Metrophobic:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&display=swap");
+
+@layer base {
+  :root {
+    --background: 220 18% 97%;
+    --foreground: 220 15% 8%;
+    --card: 220 16% 99%;
+    --card-foreground: 220 15% 8%;
+    --popover: 220 16% 99%;
+    --popover-foreground: 220 15% 8%;
+    --primary: 220 8% 32%;
+    --primary-foreground: 220 15% 96%;
+    --secondary: 220 12% 92%;
+    --secondary-foreground: 220 15% 12%;
+    --muted: 220 12% 92%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 220 12% 92%;
+    --accent-foreground: 220 15% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 220 18% 98%;
+    --border: 220 12% 90%;
+    --input: 220 12% 90%;
+    --ring: 220 8% 32%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 15% 4.5%;
+    --foreground: 220 18% 96%;
+    --card: 220 16% 7%;
+    --card-foreground: 220 18% 96%;
+    --popover: 220 16% 7%;
+    --popover-foreground: 220 18% 96%;
+    --primary: 220 8% 36%;
+    --primary-foreground: 220 18% 96%;
+    --secondary: 220 10% 14%;
+    --secondary-foreground: 220 18% 92%;
+    --muted: 220 10% 14%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 220 10% 14%;
+    --accent-foreground: 220 18% 96%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 220 18% 96%;
+    --border: 220 10% 18%;
+    --input: 220 10% 18%;
+    --ring: 220 8% 36%;
+  }
+
+  *, ::before, ::after, ::backdrop {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: theme('colors.border');
+  }
+
+  ::before, ::after {
+    --tw-content: '';
+  }
+
+  html {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    font-family: theme('fontFamily.sans');
+    font-feature-settings: theme('fontFamily.sans[1].fontFeatureSettings');
+    font-variation-settings: theme('fontFamily.sans[1].fontVariationSettings');
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    line-height: inherit;
+  }
+
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+
+  abbr:where([title]) {
+    text-decoration: underline dotted;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  b, strong {
+    font-weight: bolder;
+  }
+
+  code, kbd, samp, pre {
+    font-family: theme('fontFamily.mono');
+    font-feature-settings: theme('fontFamily.mono[1].fontFeatureSettings');
+    font-variation-settings: theme('fontFamily.mono[1].fontVariationSettings');
+    font-size: 1em;
+  }
+
+  small {
+    font-size: 80%;
+  }
+
+  sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  sub {
+    bottom: -0.25em;
+  }
+
+  sup {
+    top: -0.5em;
+  }
+
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+
+  button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+
+  button, select {
+    text-transform: none;
+  }
+
+  button, [type='button'], [type='reset'], [type='submit'] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
+
+  :-moz-focusring {
+    outline: auto;
+  }
+
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+
+  progress {
+    vertical-align: baseline;
+  }
+
+  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  [type='search'] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px;
+  }
+
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-file-upload-button {
+    -webkit-appearance: button;
+    font: inherit;
+  }
+
+  summary {
+    display: list-item;
+  }
+
+  blockquote, dl, dd, h1, h2, h3, h4, h5, h6, hr, figure, p, pre {
+    margin: 0;
+  }
+
+  fieldset {
+    margin: 0;
+    padding: 0;
+  }
+
+  legend {
+    padding: 0;
+  }
+
+  ol, ul, menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  dialog {
+    padding: 0;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input::placeholder, textarea::placeholder {
+    opacity: 1;
+    color: theme('colors.muted.foreground');
+  }
+
+  button, [role="button"] {
+    cursor: pointer;
+  }
+
+  :disabled {
+    cursor: default;
+  }
+
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [hidden] {
+    display: none;
+  }
+}
+
+@layer components {
+  /* Racing Dashboard Specific Styles */
+  .racing-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .telemetry-widget {
+    @apply bg-card border border-border rounded-lg p-4;
+  }
+
+  .speed-display {
+    @apply font-bold text-4xl text-primary;
+  }
+
+  .rpm-gauge {
+    @apply relative overflow-hidden rounded-full;
+  }
+
+  .sector-time {
+    @apply font-mono text-sm;
+  }
+
+  .sector-fastest {
+    @apply text-purple-400;
+  }
+
+  .sector-personal {
+    @apply text-green-400;
+  }
+
+  .sector-normal {
+    @apply text-yellow-400;
+  }
+
+  .tire-temp-hot {
+    @apply text-red-400;
+  }
+
+  .tire-temp-optimal {
+    @apply text-green-400;
+  }
+
+  .tire-temp-cold {
+    @apply text-blue-400;
+  }
+}
+
+@layer utilities {
+  /* Racing-specific utilities */
+  .animate-pulse-fast {
+    animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-blink {
+    animation: blink 0.5s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @keyframes slide-in-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-top {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in-bottom {
+    animation: slide-in-bottom 0.3s ease-out;
+  }
+
+  .animate-slide-in-top {
+    animation: slide-in-top 0.3s ease-out;
+  }
+
+  .text-shadow-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  .bg-gradient-racing {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+}
+
+/* GT Dashboard Custom Properties - Easy Customization Points */
+:root {
+  /* Main Element Sizes - ADJUST THESE TO CHANGE LAYOUT */
+  --gt-gear-size: 10rem;           /* Gear display */
+  --gt-speed-size: 3rem;          /* Speed display */
+  --gt-delta-size: 1.25rem;       /* Delta display */
+  --gt-data-size: 1.5rem;         /* Panel data values */
+  --gt-label-size: 0.75rem;       /* Panel labels */
+
+  /* Layout Dimensions - ADJUST FOR POSITIONING */
+  --gt-center-width: 20rem;       /* Center column width */
+  --gt-side-width: 25rem;         /* Side panels width */
+  --gt-panel-gap: 0.5rem;         /* Space between panels */
+  --gt-panel-padding: 1rem;       /* Inside panel spacing */
+  --gt-main-height: 28rem;        /* Main dashboard height */
+
+  /* Component Spacing - FINE-TUNE POSITIONING */
+  --gt-gear-container: 12rem;     /* Gear background size */
+  --gt-speed-container: 8rem;     /* Speed background height */
+  --gt-delta-container: 3rem;     /* Delta background height */
+  --gt-controls-height: 6rem;     /* Bottom controls height */
+  --gt-gear-margin-top: 0rem;    /* Move gear UP - negative = up, positive = down */
+  --gt-delta-margin-top: 0rem;  /* Move delta UP - negative = up, positive = down */
+  --gt-strategy-margin-top: 2rem; /* Move strategy DOWN - positive = down, negative = up */
+  --gt-ddu-bottom-padding: 6.5rem; /* Add extra space at bottom of DDU */
+  --gt-controls-bottom: 0.5rem;    /* Distance from bottom - smaller = lower */
+  --gt-logo-size: 7rem;          /* Atlas logo size - adjust as needed */
+  --gt-controls-label-size: 0.95rem; /* Car settings labels (TC, BB, ABS, etc.) */
+  --gt-controls-data-size: 3.0rem;
+  --gt-bottom-gradient-height: 3.5rem;   /* Car settings values (2, 62, 3, etc.) */
+
+  /* Responsive Breakpoints */
+  --gt-max-width: 1400px;
+  --gt-mobile-breakpoint: 768px;
+
+/* F1 Dashboard V3/Pro Customization Points */
+  --f1-main-height: 32rem;         /* F1 dashboard main height */
+  --f1-bottom-padding: -2rem;       /* Extra bottom padding for F1 dashboards */
+  --f1-ers-bar-margin-top: -5rem;  /* ERS bar position in F1V3 Mode 1 - negative = up */
+}
+
+/* GT Dashboard Layout Classes - Clean Structure */
+.gt-endurance-dashboard-container {
+  min-height: 100vh;
+  background: #050505;
+  color: white;
+  padding: 1.5rem;
+  padding-top: 4rem; /* Space for back button */
+  overflow: auto;
+}
+
+.gt-endurance-dashboard-wrapper {
+  margin: 0 auto;
+  max-width: var(--gt-max-width);
+}
+
+.gt-main-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 220px);
+}
+
+.gt-endurance-dashboard-frame {
+  background: #050505;
+  border: 4px solid #374151;
+  border-radius: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  padding: 1.75rem;
+  padding-bottom: calc(1.75rem + var(--gt-ddu-bottom-padding)); /* Add extra bottom padding */
+  min-height: calc(var(--gt-main-height) + var(--gt-ddu-bottom-padding)); /* Set minimum height */
+  width: 100%;
+  max-width: 1200px;
+}
+
+.gt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #374151;
+}
+
+.gt-main-grid {
+  display: grid;
+  grid-template-columns: var(--gt-side-width) var(--gt-center-width) var(--gt-side-width);
+  gap: var(--gt-panel-gap);
+  height: var(--gt-main-height);
+  margin-top: 1rem;
+}
+
+.gt-left-panel, .gt-right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gt-panel-gap);
+}
+
+.gt-center-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;  /* Move to top instead of center */
+  position: relative;
+  gap: 1rem;
+  padding-top: 2rem;  /* Add padding from top */
+}
+
+.gt-panel {
+  background: black;
+  border: 1px solid #4b5563;
+  border-radius: 0.5rem;
+  padding: var(--gt-panel-padding);
+}
+
+.gt-gear-display {
+  font-size: var(--gt-gear-size);
+  font-weight: bold;
+  font-family: 'Oxanium', sans-serif;
+  background: rgba(37, 37, 37, 1);
+  border-radius: 1rem;
+  width: var(--gt-gear-container);
+  height: var(--gt-gear-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--gt-gear-margin-top);  /* Apply the margin control */
+}
+
+.gt-speed-display {
+  font-size: var(--gt-speed-size);
+  font-weight: bold;
+  font-family: 'Metrophobic', sans-serif;
+  background: rgba(202, 202, 202, 1);
+  color: black;
+  border-radius: 1rem;
+  width: var(--gt-gear-container);
+  height: var(--gt-speed-container);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gt-delta-display {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: var(--gt-gear-container);
+  height: var(--gt-delta-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--gt-delta-size);
+  font-weight: bold;
+  font-family: 'Oxanium', sans-serif;
+  margin-top: var(--gt-delta-margin-top);  /* Apply the margin control */
+}
+
+.gt-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  position: absolute;
+  bottom: var(--gt-controls-bottom);  /* Use the variable for bottom distance */
+  right: 1.8rem;  /* Move to right side */
+  width: 80%;   /* Make narrower since it's on the right */
+}
+
+.gt-control-button {
+  border-radius: 0.5rem;
+  text-align: center;
+  padding: 0.875rem;
+  height: var(--gt-controls-height);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Strategy Panel Positioning */
+.gt-strategy-panel {
+  margin-top: var(--gt-strategy-margin-top);  /* Apply the margin control */
+}
+
+/* ========================================
+   MOBILE & TABLET SCALING - SCALE TO FIT
+   ======================================== */
+
+/* Base dashboard container for scaling */
+.dashboard-scale-wrapper {
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
+}
+
+/* Tablets in Landscape (typically 1024x768 or 1366x768) */
+@media screen and (max-width: 1366px) and (orientation: landscape) {
+/* F1 Dashboards V3 & Pro */
+.f1-dashboard-v3,
+.f1-pro-dashboard {
+    transform: scale(0.7);
+    transform-origin: top left;
+    width: 142.86%; /* 1/0.7 to compensate for scale */
+    min-height: 142.86%;
+  }
+
+  /* GT Endurance Dashboard */
+  .gt-endurance-dashboard-container {
+    transform: scale(0.7);
+    transform-origin: top left;
+    width: 142.86%;
+    min-height: 142.86%;
+  }
+
+  /* Other dashboards */
+  .dashboard-container,
+  .professional-dashboard,
+  .minimal-dashboard {
+    transform: scale(0.7);
+    transform-origin: top left;
+    width: 142.86%;
+    min-height: 142.86%;
+  }
+}
+
+/* Small Tablets & Large Phones in Landscape (typically 812x375 to 1024x768) */
+@media screen and (min-width: 668px) and (max-width: 1024px) and (orientation: landscape) {
+/* F1 Dashboards V3 & Pro */
+.f1-dashboard-v3,
+.f1-pro-dashboard {
+    transform: scale(0.55);
+    transform-origin: top left;
+    width: 181.82%; /* 1/0.55 */
+    min-height: 181.82%;
+  }
+
+  /* GT Endurance Dashboard */
+  .gt-endurance-dashboard-container {
+    transform: scale(0.55);
+    transform-origin: top left;
+    width: 181.82%;
+    min-height: 181.82%;
+  }
+
+  /* Other dashboards */
+  .dashboard-container,
+  .professional-dashboard,
+  .minimal-dashboard {
+    transform: scale(0.55);
+    transform-origin: top left;
+    width: 181.82%;
+    min-height: 181.82%;
+  }
+}
+
+/* Phones in Landscape (typically 667x375 or smaller) */
+@media screen and (max-width: 667px) and (orientation: landscape) {
+  /* Use zoom instead of transform for better overflow handling */
+  /* F1 Dashboards V3 & Pro */
+  .f1-dashboard-v3,
+  .f1-pro-dashboard {
+    zoom: 0.20;
+    width: 100%;
+    min-height: 100vh;
+    overflow: visible !important;
+    /* Add extra padding at bottom to ensure scrollability */
+    padding-bottom: 200px !important;
+  }
+
+  /* GT Endurance Dashboard */
+  .gt-endurance-dashboard-container {
+    zoom: 0.20;
+    width: 100%;
+    min-height: 100vh;
+    overflow: visible !important;
+    /* Add extra padding at bottom to ensure scrollability */
+    padding-bottom: 200px !important;
+  }
+
+  /* Other dashboards */
+  .dashboard-container,
+  .professional-dashboard,
+  .minimal-dashboard {
+    zoom: 0.20;
+    width: 100%;
+    min-height: 100vh;
+    overflow: visible !important;
+    /* Add extra padding at bottom to ensure scrollability */
+    padding-bottom: 200px !important;
+  }
+
+  /* Fix white background on sides and ensure full black background */
+  html {
+    background: #000000 !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important; /* Force scrollbar */
+    height: auto !important;
+    min-height: 100vh;
+  }
+
+  body {
+    background: #000000 !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important; /* Force scrollbar */
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    min-height: 100vh;
+    /* Add extra height to ensure scrolling */
+    padding-bottom: 500px !important;
+  }
+
+  /* Ensure root container has black background and proper scrolling */
+  #root {
+    background: #000000 !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    min-height: 100vh;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Force the viewport to be scrollable */
+  * {
+    max-height: none !important;
+  }
+}
+
+/* Ensure body can scroll on mobile */
+@media screen and (max-width: 1366px) {
+  body {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+
+  #root {
+    overflow: visible !important;
+    min-height: 100vh;
+  }
+}
+
+/* Disable user scaling to prevent double-zoom issues */
+@media screen and (max-width: 1366px) and (orientation: landscape) {
+  * {
+    touch-action: pan-x pan-y; /* Allow scrolling but not zooming */
+  }
+}
+
+

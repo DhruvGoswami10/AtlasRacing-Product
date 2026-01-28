@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Atlas Racing</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+    .logo-container {
+      animation: fadeIn 0.5s ease-out;
+    }
+    .logo {
+      width: 280px;
+      height: auto;
+      filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.1));
+    }
+    .loading-text {
+      margin-top: 30px;
+      color: #888;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .loading-bar-container {
+      margin-top: 20px;
+      width: 200px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loading-bar {
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(90deg, #e10600, #ff1e00);
+      border-radius: 2px;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(200%); }
+      100% { transform: translateX(350%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <img class="logo" id="logo" alt="Atlas Racing">
+  </div>
+  <script>
+    // Try multiple paths for the logo (dev vs production)
+    const logo = document.getElementById('logo');
+    const paths = [
+      '../public/Atlas-1.png',        // Dev mode
+      '../build/Atlas-1.png',         // Production mode
+      '../../resources/Atlas-1.png'   // Alternative path
+    ];
+    let pathIndex = 0;
+    function tryNextPath() {
+      if (pathIndex < paths.length) {
+        logo.src = paths[pathIndex++];
+      } else {
+        logo.style.display = 'none';
+      }
+    }
+    logo.onerror = tryNextPath;
+    tryNextPath();
+  </script>
+  <div class="loading-text">Loading Dashboard</div>
+  <div class="loading-bar-container">
+    <div class="loading-bar"></div>
+  </div>
+</body>
+</html>

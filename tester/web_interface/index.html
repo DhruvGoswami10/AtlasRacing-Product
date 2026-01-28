@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Racing Testing Suite</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --surface: #0f141a;
+            --surface-2: #111821;
+            --surface-3: #151d27;
+            --border: #1f2937;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --accent: #14b8a6;
+            --accent-hover: #0ea5a1;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+        .status-bar {
+            display: flex;
+            gap: 12px;
+        }
+        .status-item {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-connected { color: var(--success); }
+        .status-paused { color: var(--warning); }
+        .status-disconnected { color: var(--danger); }
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+            min-height: 0;
+        }
+        .left-panel {
+            background: var(--surface);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow: hidden;
+        }
+        .left-panel h2 {
+            font-size: 1.05em;
+            margin-bottom: 8px;
+        }
+        .recorder-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+        select,
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--text);
+            font-size: 0.9em;
+        }
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.4);
+        }
+        .recorder-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+        .btn:disabled {
+            background: var(--muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .btn-danger:hover {
+            background: var(--danger-dark);
+        }
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .recording-status {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-2);
+            padding: 12px;
+            font-size: 0.85em;
+            min-height: 96px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .recording-status.running {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.35);
+        }
+        .recording-status .status-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .recording-status .status-line strong {
+            font-weight: 600;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 0.75em;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+        }
+        .import-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            background: rgba(31, 41, 55, 0.3);
+        }
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(20, 184, 166, 0.1);
+        }
+        .upload-icon {
+            font-size: 1.5em;
+            margin-bottom: 6px;
+        }
+        .session-list {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-2);
+        }
+        .session-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .session-item:last-child {
+            border-bottom: none;
+        }
+        .session-item:hover {
+            background: rgba(148, 163, 184, 0.08);
+        }
+        .session-item.active {
+            background: rgba(20, 184, 166, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .session-name {
+            font-size: 0.92em;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        .session-meta {
+            font-size: 0.75em;
+            color: var(--muted);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .session-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-small {
+            padding: 4px 6px;
+            font-size: 0.7em;
+            border: none;
+            border-radius: 4px;
+            background: var(--surface-3);
+            color: var(--text);
+            cursor: pointer;
+        }
+        .btn-small:hover {
+            background: var(--border);
+        }
+        .right-panel {
+            display: grid;
+            grid-template-rows: 1fr 220px;
+            gap: 16px;
+            min-height: 0;
+        }
+        .dashboard-panel {
+            background: var(--surface);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .dashboard-wrapper {
+            position: relative;
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(17, 24, 33, 0.7);
+        }
+        .dashboard-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+        }
+        .record-overlay {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 14px;
+            min-width: 240px;
+            background: rgba(11, 15, 20, 0.88);
+            border-left: 3px solid var(--danger);
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+        }
+        .record-overlay.active {
+            display: flex;
+        }
+        .record-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #fff;
+        }
+        .record-pill::before {
+            content: '\u25CF';
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.4; }
+        }
+        .record-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            font-size: 0.78em;
+        }
+        .record-metrics strong {
+            display: block;
+            color: #fff;
+            font-size: 0.82em;
+            margin-bottom: 2px;
+        }
+        .log-panel {
+            background: var(--surface);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        .log-panel h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .log-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-2);
+            padding: 10px 12px;
+            font-size: 0.78em;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .log-entry { color: var(--muted); }
+        .log-info { color: var(--muted); }
+        .log-success { color: var(--success); }
+        .log-error { color: var(--danger); }
+        .replay-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .speed-slider {
+            flex: 1;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Atlas Racing Testing Suite</h1>
+            <div class="status-bar">
+                <div class="status-item" id="dashboardStatus">
+                    <span>Dashboard:</span>
+                    <span class="status-disconnected">Disconnected</span>
+                </div>
+                <div class="status-item" id="replayerStatus">
+                    <span>Replayer:</span>
+                    <span class="status-disconnected">Stopped</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div>
+                    <h2>Recorder</h2>
+                    <div class="recorder-card">
+                        <div>
+                            <label for="gameSelect">Game</label>
+                            <select id="gameSelect">
+                                <option value="f125" selected>F1 25 (UDP)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sessionNameInput">Session Name</label>
+                            <input type="text" id="sessionNameInput" placeholder="Optional session label">
+                        </div>
+                        <!-- Sample rate only needed for shared memory games, hidden for F1 25 -->
+                        <div id="sampleRateWrapper" class="hidden">
+                            <label for="sampleRateInput">Sample Rate (Hz)</label>
+                            <input type="number" id="sampleRateInput" min="1" max="240" value="60">
+                        </div>
+                        <div class="recorder-buttons">
+                            <button class="btn" id="startRecordBtn">Start Recording</button>
+                            <button class="btn btn-danger" id="stopRecordBtn" disabled>Stop</button>
+                        </div>
+                    </div>
+                    <div id="recordingStatusPanel" class="recording-status">
+                        <div class="status-line"><strong>Status</strong><span id="recordingState">Idle</span></div>
+                        <div class="status-line"><span>Game</span><span id="recordingGame">–</span></div>
+                        <div class="status-line"><span>Duration</span><span id="recordingDuration">00:00</span></div>
+                        <div class="status-line"><span>Count</span><span id="recordingCount">0 frames</span></div>
+                        <div class="status-line"><span>Notes</span><span id="recordingNotes">Ready</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2>Recordings</h2>
+                    <div class="import-area">
+                        <div class="upload-area" id="sessionUpload">
+                            <div class="upload-icon">📦</div>
+                            <div style="font-weight:600;">Import Recording</div>
+                            <div style="font-size:0.8em;color:var(--muted);">Drop or click to add .f125 files</div>
+                        </div>
+                        <input type="file" id="sessionFileInput" accept=".f125" style="display:none;">
+                    </div>
+                    <div id="sessionList" class="session-list">
+                        <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.85em;">
+                            Loading sessions...
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2>Replay</h2>
+                    <div class="replay-controls">
+                        <div class="button-row">
+                            <button class="btn" id="playBtn" disabled>Play</button>
+                            <button class="btn" id="pauseBtn" disabled>Pause</button>
+                            <button class="btn" id="resumeBtn" disabled>Resume</button>
+                            <button class="btn btn-danger" id="stopBtn" disabled>Stop</button>
+                        </div>
+                        <div class="speed-control">
+                            <label>Speed</label>
+                            <input type="range" id="speedSlider" class="speed-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+                            <span id="speedValue">1.0x</span>
+                        </div>
+                        <button class="btn" id="loopBtn">Loop: OFF</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="dashboard-panel">
+                    <h2>Atlas Racing Dashboard</h2>
+                    <div class="dashboard-wrapper">
+                        <iframe id="dashboardFrame" class="dashboard-frame" src="http://localhost:3000" title="Atlas Racing Dashboard">
+                            <p>Dashboard not available. Ensure Atlas Racing is running on port 3000.</p>
+                        </iframe>
+                        <div id="recordOverlay" class="record-overlay"></div>
+                    </div>
+                </div>
+                <div class="log-panel">
+                    <h3>System Log</h3>
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GAME_LABELS = {
+            f125: 'F1 25'
+        };
+        const SHARED_MEMORY_GAMES = new Set(); // F1 25 uses UDP, no shared memory games
+
+        function formatDuration(ms) {
+            const totalSeconds = Math.floor((ms || 0) / 1000);
+            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${minutes}:${seconds}`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === undefined || bytes === null) return '–';
+            if (bytes < 1024) return `${bytes} B`;
+            const kb = bytes / 1024;
+            if (kb < 1024) return `${kb.toFixed(1)} KB`;
+            return `${(kb / 1024).toFixed(1)} MB`;
+        }
+
+        function formatDate(ts) {
+            if (!ts && ts !== 0) return '–';
+            const date = new Date(ts * 1000);
+            return date.toLocaleString();
+        }
+
+        function approximateLaps(status) {
+            if (!status || !status.duration_ms) return '–';
+            const seconds = status.duration_ms / 1000;
+            const avgLapTime = 90; // F1 average lap time in seconds
+            const laps = Math.floor(seconds / avgLapTime);
+            return laps > 0 ? `~${laps}` : '<1';
+        }
+
+        class TestingSuite {
+            constructor() {
+                this.state = {
+                    currentSession: null,
+                    playbackSpeed: 1.0,
+                    isPlaying: false,
+                    isPaused: false,
+                    isLooping: false,
+                    recording: { running: false }
+                };
+
+                this.initializeElements();
+                this.setupEventListeners();
+                this.updateSampleRateVisibility();
+                this.loadSessionList();
+                this.fetchRecordStatus();
+                this.updateStatus();
+                this.timers = {
+                    recording: setInterval(() => this.fetchRecordStatus(), 2000),
+                    status: setInterval(() => this.updateStatus(), 5000)
+                };
+                this.updateReplayControls();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    gameSelect: document.getElementById('gameSelect'),
+                    sessionNameInput: document.getElementById('sessionNameInput'),
+                    sampleRateWrapper: document.getElementById('sampleRateWrapper'),
+                    sampleRateInput: document.getElementById('sampleRateInput'),
+                    startRecordBtn: document.getElementById('startRecordBtn'),
+                    stopRecordBtn: document.getElementById('stopRecordBtn'),
+                    recordingStatusPanel: document.getElementById('recordingStatusPanel'),
+                    recordingState: document.getElementById('recordingState'),
+                    recordingGame: document.getElementById('recordingGame'),
+                    recordingDuration: document.getElementById('recordingDuration'),
+                    recordingCount: document.getElementById('recordingCount'),
+                    recordingNotes: document.getElementById('recordingNotes'),
+                    recordOverlay: document.getElementById('recordOverlay'),
+                    sessionUpload: document.getElementById('sessionUpload'),
+                    sessionFileInput: document.getElementById('sessionFileInput'),
+                    sessionList: document.getElementById('sessionList'),
+                    playBtn: document.getElementById('playBtn'),
+                    pauseBtn: document.getElementById('pauseBtn'),
+                    resumeBtn: document.getElementById('resumeBtn'),
+                    stopBtn: document.getElementById('stopBtn'),
+                    loopBtn: document.getElementById('loopBtn'),
+                    speedSlider: document.getElementById('speedSlider'),
+                    speedValue: document.getElementById('speedValue'),
+                    dashboardStatus: document.getElementById('dashboardStatus'),
+                    replayerStatus: document.getElementById('replayerStatus'),
+                    logContainer: document.getElementById('logContainer')
+                };
+            }
+
+            setupEventListeners() {
+                this.elements.gameSelect.addEventListener('change', () => this.updateSampleRateVisibility());
+                this.elements.startRecordBtn.addEventListener('click', () => this.startRecording());
+                this.elements.stopRecordBtn.addEventListener('click', () => this.stopRecording());
+                this.elements.sessionUpload.addEventListener('click', () => this.elements.sessionFileInput.click());
+                this.elements.sessionFileInput.addEventListener('change', (event) => this.handleFileUpload(event.target.files));
+                this.elements.playBtn.addEventListener('click', () => this.startReplay());
+                this.elements.pauseBtn.addEventListener('click', () => this.pauseReplay());
+                this.elements.resumeBtn.addEventListener('click', () => this.resumeReplay());
+                this.elements.stopBtn.addEventListener('click', () => this.stopReplay());
+                this.elements.loopBtn.addEventListener('click', () => this.toggleLoop());
+                this.elements.speedSlider.addEventListener('input', (event) => {
+                    const value = parseFloat(event.target.value).toFixed(1);
+                    this.state.playbackSpeed = parseFloat(value);
+                    this.elements.speedValue.textContent = `${value}x`;
+                });
+            }
+
+            updateSampleRateVisibility() {
+                const game = this.elements.gameSelect.value;
+                const show = SHARED_MEMORY_GAMES.has(game);
+                this.elements.sampleRateWrapper.classList.toggle('hidden', !show);
+            }
+
+            setRecordingButtons(running) {
+                this.elements.startRecordBtn.disabled = running;
+                this.elements.stopRecordBtn.disabled = !running;
+            }
+
+            async startRecording() {
+                if (this.state.recording.running) {
+                    this.log('Recorder already running', 'error');
+                    return;
+                }
+
+                const game = this.elements.gameSelect.value;
+                const payload = {
+                    game,
+                    session_name: this.elements.sessionNameInput.value.trim() || ''
+                };
+                if (SHARED_MEMORY_GAMES.has(game)) {
+                    payload.sample_rate = parseInt(this.elements.sampleRateInput.value, 10) || 60;
+                }
+
+                try {
+                    this.setRecordingButtons(true);
+                    const response = await fetch('/api/record/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Start failed: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    this.log(`Recorder started (${GAME_LABELS[game] || game})`, 'success');
+                    if (result.filepath) {
+                        this.state.recording.filepath = result.filepath;
+                    }
+                    this.fetchRecordStatus();
+                } catch (error) {
+                    this.log(`Recorder start failed: ${error.message}`, 'error');
+                    this.setRecordingButtons(false);
+                }
+            }
+            async stopRecording() {
+                if (!this.state.recording.running) {
+                    this.log('Recorder not running', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/record/stop', { method: 'POST' });
+                    if (!response.ok) {
+                        throw new Error(`Stop failed: ${response.statusText}`);
+                    }
+
+                    this.log('Recorder stopped', 'success');
+                    this.setRecordingButtons(false);
+                    await this.fetchRecordStatus();
+                    await this.loadSessionList();
+                } catch (error) {
+                    this.log(`Recorder stop failed: ${error.message}`, 'error');
+                }
+            }
+
+            async fetchRecordStatus() {
+                try {
+                    const response = await fetch('/api/record/status');
+                    if (!response.ok) throw new Error('Status request failed');
+                    const status = await response.json();
+                    this.state.recording = status;
+                    this.renderRecordingStatus(status);
+                } catch (error) {
+                    this.log(`Recorder status failed: ${error.message}`, 'error');
+                }
+            }
+
+            renderRecordingStatus(status) {
+                const running = Boolean(status.running);
+                this.state.recording.running = running;
+                this.setRecordingButtons(running);
+                this.elements.recordingStatusPanel.classList.toggle('running', running);
+
+                const gameLabel = status.game ? (GAME_LABELS[status.game] || status.game.toUpperCase()) : '–';
+                const countLabel = status.packets !== undefined ? status.packets : 0;
+                const counterSuffix = 'packets'; // F1 25 uses UDP packets
+
+                this.elements.recordingState.textContent = running ? 'Recording' : 'Idle';
+                this.elements.recordingGame.textContent = gameLabel;
+                this.elements.recordingDuration.textContent = formatDuration(status.duration_ms || 0);
+                this.elements.recordingCount.textContent = `${countLabel} ${counterSuffix}`;
+
+                const notes = [];
+                if (running) {
+                    if (status.session_name) notes.push(status.session_name);
+                    if (status.sample_rate) notes.push(`${status.sample_rate} Hz`);
+                    if (status.port) notes.push(`UDP ${status.port}`);
+                    notes.push(`Lap guess ${approximateLaps(status)}`);
+                } else {
+                    notes.push('Ready');
+                }
+                this.elements.recordingNotes.textContent = notes.join(' • ');
+
+                this.updateOverlay(status);
+            }
+
+            updateOverlay(status) {
+                if (!status.running) {
+                    this.elements.recordOverlay.classList.remove('active');
+                    this.elements.recordOverlay.innerHTML = '';
+                    return;
+                }
+
+                const gameLabel = status.game ? (GAME_LABELS[status.game] || status.game.toUpperCase()) : 'F1 25';
+                const duration = formatDuration(status.duration_ms || 0);
+                const counterSuffix = 'packets'; // F1 25 uses UDP packets
+                const countLabel = status.packets !== undefined ? status.packets : 0;
+                const lapGuess = approximateLaps(status);
+                const rateNote = status.sample_rate ? `${status.sample_rate} Hz` : (status.port ? `UDP ${status.port}` : '—');
+
+                this.elements.recordOverlay.classList.add('active');
+                this.elements.recordOverlay.innerHTML = `
+                    <div class="record-pill">REC</div>
+                    <div class="record-metrics">
+                        <div><strong>Game</strong>${gameLabel}</div>
+                        <div><strong>Session</strong>${status.session_name || '—'}</div>
+                        <div><strong>Duration</strong>${duration}</div>
+                        <div><strong>Count</strong>${countLabel} ${counterSuffix}</div>
+                        <div><strong>Laps</strong>${lapGuess}</div>
+                        <div><strong>Info</strong>${rateNote}</div>
+                    </div>
+                `;
+            }
+
+            async handleFileUpload(files) {
+                if (!files || !files.length) return;
+                const file = files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('/api/session/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) {
+                        throw new Error(`Upload failed: ${response.statusText}`);
+                    }
+                    this.log(`Imported ${file.name}`, 'success');
+                    this.elements.sessionFileInput.value = '';
+                    await this.loadSessionList();
+                } catch (error) {
+                    this.log(`Upload failed: ${error.message}`, 'error');
+                }
+            }
+
+            async loadSessionList() {
+                try {
+                    const response = await fetch('/api/sessions');
+                    if (!response.ok) throw new Error(response.statusText);
+                    const data = await response.json();
+                    this.renderSessionList(data.sessions || []);
+                    this.log(`Loaded ${data.sessions ? data.sessions.length : 0} sessions`, 'info');
+                } catch (error) {
+                    this.elements.sessionList.innerHTML = `
+                        <div style="padding:20px;text-align:center;color:var(--danger);font-size:0.85em;">
+                            Failed to load sessions
+                        </div>
+                    `;
+                    this.log(`Failed to load sessions: ${error.message}`, 'error');
+                }
+            }
+
+            renderSessionList(sessions) {
+                if (!sessions.length) {
+                    this.elements.sessionList.innerHTML = `
+                        <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.85em;">
+                            No recordings yet
+                        </div>
+                    `;
+                    this.state.currentSession = null;
+                    this.updateReplayControls();
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                sessions.forEach((session) => {
+                    const item = document.createElement('div');
+                    item.className = 'session-item';
+                    item.dataset.path = session.filepath;
+                    item.dataset.game = session.game || '';
+
+                    const info = document.createElement('div');
+                    info.className = 'session-info';
+                    const name = document.createElement('div');
+                    name.className = 'session-name';
+                    name.textContent = session.filename;
+                    const meta = document.createElement('div');
+                    meta.className = 'session-meta';
+                    const gameTag = document.createElement('span');
+                    gameTag.className = 'tag';
+                    gameTag.textContent = GAME_LABELS[session.game] || session.game || 'Unknown';
+                    const sizeTag = document.createElement('span');
+                    sizeTag.textContent = formatBytes(session.size);
+                    const timeTag = document.createElement('span');
+                    timeTag.textContent = formatDate(session.modified);
+                    meta.append(gameTag, sizeTag, timeTag);
+                    info.append(name, meta);
+
+                    const actions = document.createElement('div');
+                    actions.className = 'session-actions';
+                    const renameBtn = document.createElement('button');
+                    renameBtn.className = 'btn-small';
+                    renameBtn.textContent = '✏️';
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-small btn-danger';
+                    deleteBtn.textContent = '🗑️';
+                    actions.append(renameBtn, deleteBtn);
+
+                    item.append(info, actions);
+                    fragment.appendChild(item);
+
+                    item.addEventListener('click', (event) => {
+                        if (event.target === renameBtn || event.target === deleteBtn) return;
+                        this.selectSession(session, item);
+                    });
+
+                    renameBtn.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        this.renameSession(session);
+                    });
+
+                    deleteBtn.addEventListener('click', async (event) => {
+                        event.stopPropagation();
+                        await this.deleteSession(session);
+                    });
+
+                    if (this.state.currentSession && this.state.currentSession.filepath === session.filepath) {
+                        item.classList.add('active');
+                    }
+                });
+
+                this.elements.sessionList.innerHTML = '';
+                this.elements.sessionList.appendChild(fragment);
+            }
+
+            selectSession(session, element) {
+                this.state.currentSession = { ...session };
+                this.elements.sessionList.querySelectorAll('.session-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+                this.log(`Selected ${session.filename}`, 'info');
+                this.updateReplayControls();
+            }
+
+            updateReplayControls() {
+                const sessionSelected = Boolean(this.state.currentSession);
+                this.elements.playBtn.disabled = !sessionSelected || this.state.isPlaying;
+                this.elements.pauseBtn.disabled = !this.state.isPlaying || this.state.isPaused;
+                this.elements.resumeBtn.disabled = !this.state.isPlaying || !this.state.isPaused;
+                this.elements.stopBtn.disabled = !this.state.isPlaying && !this.state.isPaused;
+            }
+
+            async startReplay() {
+                if (!this.state.currentSession) {
+                    this.log('No session selected', 'error');
+                    return;
+                }
+                if (this.state.isPlaying && !this.state.isPaused) {
+                    this.log('Replay already running', 'error');
+                    return;
+                }
+
+                const payload = {
+                    session_file: this.state.currentSession.filepath,
+                    game: this.state.currentSession.game,
+                    speed: this.state.playbackSpeed,
+                    loop: this.state.isLooping
+                };
+
+                try {
+                    const response = await fetch('/api/replay/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(response.statusText);
+
+                    this.state.isPlaying = true;
+                    this.state.isPaused = false;
+                    this.log(`Replay started (${this.state.currentSession.filename})`, 'success');
+                    this.updateReplayControls();
+                    this.updateStatusBar('playing');
+                } catch (error) {
+                    this.log(`Replay start failed: ${error.message}`, 'error');
+                }
+            }
+
+            async pauseReplay() {
+                if (!this.state.isPlaying || this.state.isPaused) return;
+                try {
+                    const response = await fetch('/api/replay/pause', { method: 'POST' });
+                    if (!response.ok) throw new Error(response.statusText);
+                    this.state.isPaused = true;
+                    this.log('Replay paused', 'info');
+                    this.updateReplayControls();
+                    this.updateStatusBar('paused');
+                } catch (error) {
+                    this.log(`Pause failed: ${error.message}`, 'error');
+                }
+            }
+
+            async resumeReplay() {
+                if (!this.state.isPlaying || !this.state.isPaused) return;
+                try {
+                    const response = await fetch('/api/replay/resume', { method: 'POST' });
+                    if (!response.ok) throw new Error(response.statusText);
+                    this.state.isPaused = false;
+                    this.log('Replay resumed', 'info');
+                    this.updateReplayControls();
+                    this.updateStatusBar('playing');
+                } catch (error) {
+                    this.log(`Resume failed: ${error.message}`, 'error');
+                }
+            }
+
+            async stopReplay() {
+                if (!this.state.isPlaying && !this.state.isPaused) return;
+                try {
+                    await fetch('/api/replay/stop', { method: 'POST' });
+                    this.state.isPlaying = false;
+                    this.state.isPaused = false;
+                    this.log('Replay stopped', 'success');
+                    this.updateReplayControls();
+                    this.updateStatusBar('stopped');
+                } catch (error) {
+                    this.log(`Stop failed: ${error.message}`, 'error');
+                }
+            }
+
+            toggleLoop() {
+                this.state.isLooping = !this.state.isLooping;
+                this.elements.loopBtn.textContent = `Loop: ${this.state.isLooping ? 'ON' : 'OFF'}`;
+                this.log(`Loop ${this.state.isLooping ? 'enabled' : 'disabled'}`, 'info');
+            }
+
+            async deleteSession(session) {
+                if (!confirm(`Delete "${session.filename}"?`)) return;
+                try {
+                    const response = await fetch('/api/session/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filepath: session.filepath })
+                    });
+                    if (!response.ok) throw new Error(response.statusText);
+                    this.log(`Deleted ${session.filename}`, 'success');
+                    if (this.state.currentSession && this.state.currentSession.filepath === session.filepath) {
+                        this.state.currentSession = null;
+                    }
+                    await this.loadSessionList();
+                    this.updateReplayControls();
+                } catch (error) {
+                    this.log(`Delete failed: ${error.message}`, 'error');
+                }
+            }
+
+            async renameSession(session) {
+                const base = session.filename.replace(/\.[^/.]+$/, '');
+                const newName = prompt('Rename session', base);
+                if (!newName || newName === base) return;
+                try {
+                    const response = await fetch('/api/session/rename', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filepath: session.filepath, new_name: newName })
+                    });
+                    if (!response.ok) throw new Error(response.statusText);
+                    this.log(`Renamed to ${newName}`, 'success');
+                    await this.loadSessionList();
+                } catch (error) {
+                    this.log(`Rename failed: ${error.message}`, 'error');
+                }
+            }
+
+            async updateStatus() {
+                try {
+                    const response = await fetch('/api/status');
+                    if (!response.ok) throw new Error(response.statusText);
+                    const status = await response.json();
+                    const dashboardSpan = this.elements.dashboardStatus.querySelector('span:last-child');
+                    if (status.dashboard && status.dashboard.running) {
+                        dashboardSpan.textContent = 'Connected';
+                        dashboardSpan.className = 'status-connected';
+                    } else {
+                        dashboardSpan.textContent = 'Disconnected';
+                        dashboardSpan.className = 'status-disconnected';
+                    }
+
+                    const replayerSpan = this.elements.replayerStatus.querySelector('span:last-child');
+                    if (this.state.isPlaying) {
+                        replayerSpan.textContent = this.state.isPaused ? 'Paused' : 'Playing';
+                        replayerSpan.className = this.state.isPaused ? 'status-paused' : 'status-connected';
+                    } else {
+                        replayerSpan.textContent = 'Stopped';
+                        replayerSpan.className = 'status-disconnected';
+                    }
+                } catch (error) {
+                    const dashboardSpan = this.elements.dashboardStatus.querySelector('span:last-child');
+                    dashboardSpan.textContent = 'Disconnected';
+                    dashboardSpan.className = 'status-disconnected';
+                }
+            }
+
+            updateStatusBar(mode) {
+                const replayerSpan = this.elements.replayerStatus.querySelector('span:last-child');
+                switch (mode) {
+                    case 'playing':
+                        replayerSpan.textContent = 'Playing';
+                        replayerSpan.className = 'status-connected';
+                        break;
+                    case 'paused':
+                        replayerSpan.textContent = 'Paused';
+                        replayerSpan.className = 'status-paused';
+                        break;
+                    default:
+                        replayerSpan.textContent = 'Stopped';
+                        replayerSpan.className = 'status-disconnected';
+                }
+            }
+
+            log(message, type = 'info') {
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                this.elements.logContainer.appendChild(entry);
+                this.elements.logContainer.scrollTop = this.elements.logContainer.scrollHeight;
+                while (this.elements.logContainer.children.length > 80) {
+                    this.elements.logContainer.removeChild(this.elements.logContainer.firstChild);
+                }
+            }
+        }
+
+        let testingSuite;
+        document.addEventListener('DOMContentLoaded', () => {
+            testingSuite = new TestingSuite();
+        });
+    </script>
+</body>
+</html>
