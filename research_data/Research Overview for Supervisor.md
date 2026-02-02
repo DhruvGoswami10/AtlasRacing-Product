@@ -174,7 +174,7 @@ Participants who used the LLM first and then raced without it showed signs of re
 
 ## How is the data structured?
 
-The dataset contains **50 races** across 5 participants, organised as:
+The dataset contains **50 races, 902 laps, and 1,415 LLM interactions** across 5 participants, organised as:
 
 ```
 research_data/
@@ -191,6 +191,19 @@ research_data/
     ├── P3/ (Race-1 to Race-10)
     └── P4/ (Race-1 to Race-10)
 ```
+
+### Per-Participant Breakdown
+
+| Participant | Races | Laps | LLM Interactions | Telemetry Rows | Files |
+| --- | --- | --- | --- | --- | --- |
+| P0 (pilot) | 10 | 290 | 361 | 282 | 30 |
+| P1 | 10 | 154 | 234 | 154 | 30 |
+| P2 | 10 | 152 | 255 | 151 | 30 |
+| P3 | 10 | 154 | 257 | 153 | 30 |
+| P4 | 10 | 152 | 308 | 152 | 30 |
+| **Total** | **50** | **902** | **1,415** | **892** | **150** |
+
+P0's higher lap count (290 vs ~153) reflects 100% race distance in Phase-1, compared to 50% distance in Phase-2. Each telemetry row records 25 data channels per lap, yielding **22,300+ individual data points**.
 
 Each race produces three files:
 - **Lap telemetry CSV:** Per-lap performance data (lap times, sector times, tyre wear, ERS state, position, gaps)
@@ -216,7 +229,7 @@ Each race produces three files:
 | **Novelty** | First academic study of LLMs as race engineers — confirmed gap in literature |
 | **Methodology** | Within-subjects counterbalanced design with both quantitative and qualitative data |
 | **Objective evidence** | ERS telemetry provides machine-recorded behavioural data, not just self-reports |
-| **Rich dataset** | 50 races, ~750 laps, ~1500 LLM interactions, per-lap telemetry, participant notes |
+| **Rich dataset** | 50 races, 902 laps, 1,415 LLM interactions, 22,550+ telemetry data points, participant notes |
 | **Broader implications** | Findings speak to human-AI trust, skill equalisation, and real-time AI decision support |
 
 Suitable venues: CHI Late-Breaking Work, CHI PLAY, Foundations of Digital Games (FDG), Entertainment Computing journal.
@@ -225,4 +238,4 @@ Suitable venues: CHI Late-Breaking Work, CHI PLAY, Foundations of Digital Games 
 
 ## One-Paragraph Summary
 
-This study is the first to investigate whether a Large Language Model can serve as a real-time AI race engineer in a competitive racing environment. Using EA Sports F1 25 and live telemetry data, we built a system that feeds structured race data to an LLM (Claude), which responds with pit strategy, energy management, and tactical advice. In a counterbalanced within-subjects study with 5 participants across 50 races, we found that LLM assistance improved average finishing position from 4.68 to 1.65, with the largest gains for less skilled drivers (one participant improved from 9th to 1st place average). Objective telemetry data confirmed that the primary mechanism was improved energy management: without the LLM, drivers depleted their battery within 5 laps, while LLM-guided drivers maintained 20-80% charge throughout races. Drivers developed trust in the system over 5 races (average 81% follow rate) and showed partial retention of learned techniques after LLM removal. The findings demonstrate that LLMs can provide contextually appropriate real-time strategic advice when given structured telemetry data, with implications for human-AI collaboration in time-critical decision-making domains.
+This study is the first to investigate whether a Large Language Model can serve as a real-time AI race engineer in a competitive racing environment. Using EA Sports F1 25 and live telemetry data, we built a system that feeds structured race data to an LLM (Claude), which responds with pit strategy, energy management, and tactical advice. In a counterbalanced within-subjects study with 5 participants across 50 races (902 laps, 1,415 LLM interactions), we found that LLM assistance improved average finishing position from 4.68 to 1.65, with the largest gains for less skilled drivers (one participant improved from 9th to 1st place average). Objective telemetry data confirmed that the primary mechanism was improved energy management: without the LLM, drivers depleted their battery within 5 laps, while LLM-guided drivers maintained 20-80% charge throughout races. Drivers developed trust in the system over 5 races (average 81% follow rate) and showed partial retention of learned techniques after LLM removal. The findings demonstrate that LLMs can provide contextually appropriate real-time strategic advice when given structured telemetry data, with implications for human-AI collaboration in time-critical decision-making domains.

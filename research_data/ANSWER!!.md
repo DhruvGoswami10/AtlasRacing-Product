@@ -35,7 +35,20 @@
 | P3 | Phase-2 | LLM (R1-R5) → Control (R6-R10) | 10 | Skilled |
 | P4 | Phase-2 | LLM (R11-R15) → Control (R16-R20) | 10 | Weaker |
 
-**Total: 50 races, ~750 laps, ~1500 LLM interactions**
+**Total: 50 races, 902 laps, 1,415 LLM interactions, 22,550+ telemetry data points across 150 files**
+
+### Dataset Breakdown
+
+| Group | Races | Laps | LLM Interactions | Telemetry Rows | Files |
+| --- | --- | --- | --- | --- | --- |
+| P0 (Phase-1, pilot) | 10 | 290 | 361 | 282 | 30 |
+| P1 (Phase-2) | 10 | 154 | 234 | 154 | 30 |
+| P2 (Phase-2) | 10 | 152 | 255 | 151 | 30 |
+| P3 (Phase-2) | 10 | 154 | 257 | 153 | 30 |
+| P4 (Phase-2) | 10 | 152 | 308 | 152 | 30 |
+| **Total** | **50** | **902** | **1,415** | **892** | **150** |
+
+Phase-1 has roughly double the laps (290 vs ~153) because those were 100% distance races. Each telemetry row contains 25 data channels (lap time, sectors, position, gaps, tyre compound/wear, ERS state/mode, weather, etc.), yielding **22,300+ individual telemetry data points**. LLM call counts match exactly between summary files and interaction logs (1,415 = 1,415), confirming data consistency.
 
 ---
 
