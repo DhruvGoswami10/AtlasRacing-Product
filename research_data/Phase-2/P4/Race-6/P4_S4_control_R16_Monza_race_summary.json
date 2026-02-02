@@ -1,0 +1,41 @@
+{
+  "raceId": "P4_S4_control_R16_Monza",
+  "participantId": "P4",
+  "date": "2026-02-01T20:28:12.720Z",
+  "track": "Monza",
+  "trackId": 11,
+  "seasonType": "control",
+  "seasonNumber": 4,
+  "raceNumber": 16,
+  "totalLaps": 13,
+  "difficulty": 80,
+  "startingPosition": 15,
+  "finishPosition": 5,
+  "points": 10,
+  "fastestLap": false,
+  "bestLapMs": 84201,
+  "avgLapMs": 89068,
+  "pitStops": [
+    {
+      "lap": 6,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 12,
+      "positionAfter": 12,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 1,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 28,
+  "llmAvgLatencyMs": 2582,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 2,
+  "llmERSCalls": 6,
+  "llmDriverQuestions": 19,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 1 stop on lap6 M-H. Good race. Kinda remember ERS saving tips lol"
+}

@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_control_R14_Hungaroring",
+  "participantId": "P2",
+  "date": "2026-01-31T16:19:35.267Z",
+  "track": "Hungaroring",
+  "trackId": 9,
+  "seasonType": "control",
+  "seasonNumber": 2,
+  "raceNumber": 14,
+  "totalLaps": 18,
+  "difficulty": 80,
+  "startingPosition": 18,
+  "finishPosition": 9,
+  "points": 2,
+  "fastestLap": false,
+  "bestLapMs": 81667,
+  "avgLapMs": 84671,
+  "pitStops": [
+    {
+      "lap": 10,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 18,
+      "positionAfter": 18,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 33,
+  "llmAvgLatencyMs": 3023,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 8,
+  "llmDriverQuestions": 23,
+  "followedRate": 0,
+  "notes": "Strategy Quality: wrong. P18 to P9 in 18 laps with 1 stop on lap10 from mediums to hards."
+}

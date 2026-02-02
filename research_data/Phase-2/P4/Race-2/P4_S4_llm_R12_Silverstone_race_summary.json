@@ -1,0 +1,41 @@
+{
+  "raceId": "P4_S4_llm_R12_Silverstone",
+  "participantId": "P4",
+  "date": "2026-02-01T17:48:55.056Z",
+  "track": "Silverstone",
+  "trackId": 7,
+  "seasonType": "llm",
+  "seasonNumber": 4,
+  "raceNumber": 12,
+  "totalLaps": 13,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 3,
+  "points": 15,
+  "fastestLap": true,
+  "bestLapMs": 90761,
+  "avgLapMs": 94900,
+  "pitStops": [
+    {
+      "lap": 9,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 7,
+      "positionAfter": 7,
+      "triggeredBy": "llm",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 37,
+  "llmAvgLatencyMs": 2178,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 15,
+  "llmERSCalls": 6,
+  "llmDriverQuestions": 15,
+  "followedRate": 88,
+  "notes": "Strategy Quality: correct. 1 stop on lap9 S->M. P3 is good but expected better from LLM. "
+}

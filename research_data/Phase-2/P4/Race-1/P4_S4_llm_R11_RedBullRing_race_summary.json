@@ -1,0 +1,41 @@
+{
+  "raceId": "P4_S4_llm_R11_RedBullRing",
+  "participantId": "P4",
+  "date": "2026-02-01T17:24:09.781Z",
+  "track": "Red Bull Ring",
+  "trackId": 17,
+  "seasonType": "llm",
+  "seasonNumber": 4,
+  "raceNumber": 11,
+  "totalLaps": 18,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 68056,
+  "avgLapMs": 72021,
+  "pitStops": [
+    {
+      "lap": 9,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 1,
+      "positionAfter": 1,
+      "triggeredBy": "llm",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 39,
+  "llmAvgLatencyMs": 2382,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 15,
+  "llmERSCalls": 8,
+  "llmDriverQuestions": 15,
+  "followedRate": 88,
+  "notes": "Strategy Quality: correct. 1 stop on Lap9 M->H and the race was great, awesome ERS strategy and pit strategy. Familiar track"
+}

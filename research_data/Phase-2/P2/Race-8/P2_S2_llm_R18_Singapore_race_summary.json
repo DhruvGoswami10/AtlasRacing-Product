@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_llm_R18_Singapore",
+  "participantId": "P2",
+  "date": "2026-01-31T18:32:44.498Z",
+  "track": "Singapore",
+  "trackId": 12,
+  "seasonType": "llm",
+  "seasonNumber": 2,
+  "raceNumber": 18,
+  "totalLaps": 16,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 94504,
+  "avgLapMs": 98087,
+  "pitStops": [
+    {
+      "lap": 10,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 1,
+      "positionAfter": 1,
+      "triggeredBy": "llm",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 26,
+  "llmAvgLatencyMs": 3114,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 8,
+  "llmERSCalls": 7,
+  "llmDriverQuestions": 10,
+  "followedRate": 67,
+  "notes": "Strategy Quality: correct. Pretty wired here when it came to making pit stop decision. Did not stick to the original plan but I did and it was beneficial but doubtful. I had to overtake to be P1 because coming out of pits I was P3. P16 to P1 in 16 laps with 1 stop on lap9 from softs to mediums. Good ERS calls but confusing pit stratetgy calls. "
+}

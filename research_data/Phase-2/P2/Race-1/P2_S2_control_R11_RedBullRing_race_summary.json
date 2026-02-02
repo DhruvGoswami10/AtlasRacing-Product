@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_control_R11_RedBullRing",
+  "participantId": "P2",
+  "date": "2026-01-30T23:57:32.328Z",
+  "track": "Red Bull Ring",
+  "trackId": 17,
+  "seasonType": "control",
+  "seasonNumber": 2,
+  "raceNumber": 11,
+  "totalLaps": 18,
+  "difficulty": 80,
+  "startingPosition": 17,
+  "finishPosition": 8,
+  "points": 4,
+  "fastestLap": false,
+  "bestLapMs": 69464,
+  "avgLapMs": 72463,
+  "pitStops": [
+    {
+      "lap": 9,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 0,
+      "positionAfter": 0,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 26,
+  "llmAvgLatencyMs": 2602,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 8,
+  "llmDriverQuestions": 16,
+  "followedRate": 0,
+  "notes": "Strategy Quality: wrong. Started P17 and finished P8. No idea how to save ERS and No clue if I should stop early or late. Usually early stop works but sometimes it does not work. Pitted once on Lap9 from mediums to hards and 18 laps completed."
+}

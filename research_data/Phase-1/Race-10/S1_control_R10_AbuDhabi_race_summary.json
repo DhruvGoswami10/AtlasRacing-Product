@@ -1,0 +1,60 @@
+{
+  "raceId": "S1_control_R10_AbuDhabi",
+  "date": "2026-01-30T00:06:10.993Z",
+  "track": "Abu Dhabi",
+  "trackId": 14,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 10,
+  "totalLaps": 29,
+  "difficulty": 80,
+  "startingPosition": 19,
+  "finishPosition": 2,
+  "points": 18,
+  "fastestLap": false,
+  "bestLapMs": 89387,
+  "avgLapMs": 92461,
+  "pitStops": [
+    {
+      "lap": 11,
+      "compoundFrom": "Medium",
+      "compoundTo": "Medium",
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 20,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [
+    {
+      "lap": 10,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 28,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 36,
+  "llmAvgLatencyMs": 3072,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 14,
+  "llmDriverQuestions": 20,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 29 laps completed with 2 stops, stop-1 on lap10 from mediums to mediums and stop-2 on lap19 from mediums to hards. Started P19 and finished P2. Again could've gone for P1 but tried my best. Reduced the gap from 11s down to just 1.8s. Happy with the performance. This is the end of phase-1"
+}

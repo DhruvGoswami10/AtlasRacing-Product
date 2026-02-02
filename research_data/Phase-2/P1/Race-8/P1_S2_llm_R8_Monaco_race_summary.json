@@ -1,0 +1,50 @@
+{
+  "raceId": "P1_S2_llm_R8_Monaco",
+  "participantId": "P1",
+  "date": "2026-01-30T20:05:27.925Z",
+  "track": "Monaco",
+  "trackId": 5,
+  "seasonType": "llm",
+  "seasonNumber": 2,
+  "raceNumber": 8,
+  "totalLaps": 20,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 74337,
+  "avgLapMs": 78614,
+  "pitStops": [
+    {
+      "lap": 7,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 10,
+      "positionAfter": 10,
+      "triggeredBy": "llm",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 15,
+      "compoundFrom": "Medium",
+      "compoundTo": "Medium",
+      "positionBefore": 1,
+      "positionAfter": 1,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 28,
+  "llmAvgLatencyMs": 2309,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 7,
+  "llmERSCalls": 9,
+  "llmDriverQuestions": 11,
+  "followedRate": 63,
+  "notes": "Strategy Quality: correct. P16 to P1 in 20 laps with 2 stops (mandatory): stop-1 on lap6 from softs to mediums and stop-2 on end of lap-14 from mediums to mediums. Amazing ERS strategy however didn't pay attention till around lap-5/6 because busy fighting for positions and avoiding contact with other drivers. When started following ERS management was awesome. Pit stops didn't follow one stopper because 2 stop mandatory rule. But when LLM realized it was 2 stop both stops were predicted correctly. Following LLM blindly now!"
+}

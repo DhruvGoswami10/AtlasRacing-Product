@@ -38,14 +38,14 @@ export const TRACK_NAMES: Record<number, string> = {
   22: 'Silverstone Short',
   23: 'Austin Short',
   24: 'Suzuka Short',
-  25: 'Jeddah',
-  26: 'Lusail',
-  27: 'Miami',
-  28: 'Las Vegas',
-  29: 'Zandvoort',
-  30: 'Imola',
-  31: 'Portimao',
-  32: 'Shanghai Short',
+  25: 'Hanoi',
+  26: 'Zandvoort',
+  27: 'Imola',
+  28: 'Portimao',
+  29: 'Jeddah',
+  30: 'Miami',
+  31: 'Las Vegas',
+  32: 'Losail',
 };
 
 export const WEATHER_NAMES: Record<number, string> = {
@@ -140,8 +140,6 @@ export interface PitStopRecord {
   lap: number;
   compoundFrom: string;
   compoundTo: string;
-  tireAgeAtStop: number;
-  tireWearAtStop: number;
   positionBefore: number;
   positionAfter: number;
   triggeredBy: 'llm' | 'driver' | 'mandatory';
@@ -157,6 +155,7 @@ export interface RaceConfig {
   totalLaps: number;
   difficulty: number;
   startingPosition?: number;
+  participantId?: string;
 }
 
 export interface RaceEndData {
@@ -171,6 +170,7 @@ export interface RaceEndData {
 export interface RaceSummary {
   // Race metadata
   raceId: string;
+  participantId: string;
   date: string;
   track: string;
   trackId: number;
@@ -328,8 +328,6 @@ class ResearchLoggerService {
     lap: number;
     compoundFrom: string;
     compoundTo: string;
-    tireAgeAtStop: number;
-    tireWearAtStop: number;
     positionBefore: number;
     positionAfter: number;
     triggeredBy: 'llm' | 'driver' | 'mandatory';
@@ -341,8 +339,6 @@ class ResearchLoggerService {
       lap: data.lap,
       compoundFrom: data.compoundFrom,
       compoundTo: data.compoundTo,
-      tireAgeAtStop: data.tireAgeAtStop,
-      tireWearAtStop: data.tireWearAtStop,
       positionBefore: data.positionBefore,
       positionAfter: data.positionAfter,
       triggeredBy: data.triggeredBy,
@@ -497,10 +493,13 @@ class ResearchLoggerService {
       ? Math.round((followedCount / assessedStrategy.length) * 100)
       : null;
 
+    const pid = config?.participantId || 'P0';
+
     return {
       raceId: config
-        ? `S${config.seasonNumber}_${config.seasonType}_R${config.raceNumber}_${config.track.replace(/\s/g, '')}`
+        ? `${pid}_S${config.seasonNumber}_${config.seasonType}_R${config.raceNumber}_${config.track.replace(/\s/g, '')}`
         : `race_${Date.now()}`,
+      participantId: pid,
       date: new Date().toISOString(),
       track: config?.track ?? 'Unknown',
       trackId: config?.trackId ?? -1,

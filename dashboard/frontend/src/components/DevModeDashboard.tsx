@@ -13,6 +13,8 @@ import { DevModeAtlasLinkPanel } from './DevModeAtlasLinkPanel';
 import { EngineerChat } from './EngineerChat';
 import { useEngineerTriggers } from '../hooks/useEngineerTriggers';
 import { usePitStopTracker } from '../hooks/usePitStopTracker';
+import { useLivePitStrategy } from '../hooks/useLivePitStrategy';
+import { useTyreSets } from '../hooks/useTyreSets';
 import { ResearchReviewPanel } from './ResearchReviewPanel';
 import {
   getResearchLogger,
@@ -123,6 +125,8 @@ export function DevModeDashboard() {
   const [seasonType, setSeasonType] = useState<'control' | 'llm'>('llm');
   const [seasonNumber, setSeasonNumber] = useState(1);
   const [raceNumber, setRaceNumber] = useState(1);
+  const [participantId, setParticipantId] = useState('P0');
+  const [difficulty, setDifficulty] = useState(80);
   const [showPostRaceReview, setShowPostRaceReview] = useState(false);
   const [loggedLapCount, setLoggedLapCount] = useState(0);
   const [loggedInteractionCount, setLoggedInteractionCount] = useState(0);
@@ -146,11 +150,20 @@ export function DevModeDashboard() {
   // Track pit laps that need compound_to backfilled (deferred until compound actually changes)
   const pendingPitLapRef = useRef<number | null>(null);
 
+  // Live pit strategy for engineer triggers (needs standardized telemetry)
+  const { tyreSets } = useTyreSets();
+  const stdTelemetryForStrategy = rawTelemetry ? convertTelemetry(rawTelemetry) : null;
+  const liveStrategy = useLivePitStrategy({
+    telemetry: stdTelemetryForStrategy,
+    multiCarData: multiCarData ?? null,
+    tyreSets,
+  });
+
   // Generate proactive engineer triggers from telemetry changes
   const engineerTriggers = useEngineerTriggers(
     rawTelemetry as unknown as Record<string, unknown>,
     multiCarData,
-    null,
+    liveStrategy.ready ? liveStrategy : null,
     { enabled: connectionStatus === 'connected' }
   );
 
@@ -194,8 +207,9 @@ export function DevModeDashboard() {
       seasonNumber,
       raceNumber,
       totalLaps,
-      difficulty: t?.ai_difficulty ?? 0,
+      difficulty,
       startingPosition: t?.position ?? 0,
+      participantId,
     });
 
     // Initialize to the current lap so the first log fires on the NEXT lap transition
@@ -451,8 +465,6 @@ export function DevModeDashboard() {
         lap: pitStopTracker.lastStopLap,
         compoundFrom: pitStopTracker.lastCompound ?? 'unknown',
         compoundTo: pitStopTracker.currentCompound ?? 'unknown',
-        tireAgeAtStop: t?.tire_age_laps ?? 0,
-        tireWearAtStop: maxWear,
         positionBefore: t?.position ?? 0,
         positionAfter: t?.position ?? 0,
         triggeredBy: seasonType === 'llm' ? 'llm' : 'driver',
@@ -2960,6 +2972,28 @@ export function DevModeDashboard() {
                     max="50"
                     value={raceNumber}
                     onChange={(e) => setRaceNumber(parseInt(e.target.value, 10) || 1)}
+                    className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-gray-500 block mb-0.5">Participant</label>
+                  <input
+                    type="text"
+                    value={participantId}
+                    onChange={(e) => setParticipantId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                    placeholder="P0"
+                    maxLength={6}
+                    className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-gray-500 block mb-0.5">AI Difficulty</label>
+                  <input
+                    type="number"
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(Math.max(0, Math.min(110, Number(e.target.value) || 0)))}
+                    min={0}
+                    max={110}
                     className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-xs text-white"
                   />
                 </div>

@@ -1,0 +1,41 @@
+{
+  "raceId": "P4_S4_control_R17_Baku",
+  "participantId": "P4",
+  "date": "2026-02-01T20:58:47.043Z",
+  "track": "Baku",
+  "trackId": 20,
+  "seasonType": "control",
+  "seasonNumber": 4,
+  "raceNumber": 17,
+  "totalLaps": 13,
+  "difficulty": 80,
+  "startingPosition": 15,
+  "finishPosition": 7,
+  "points": 6,
+  "fastestLap": true,
+  "bestLapMs": 104858,
+  "avgLapMs": 114561,
+  "pitStops": [
+    {
+      "lap": 6,
+      "compoundFrom": "Hard",
+      "compoundTo": "Medium",
+      "positionBefore": 16,
+      "positionAfter": 16,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 1,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 27,
+  "llmAvgLatencyMs": 2823,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 3,
+  "llmERSCalls": 6,
+  "llmDriverQuestions": 17,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 1 stop on lap 6 H->M. "
+}

@@ -1,0 +1,41 @@
+{
+  "raceId": "P3_S3_control_R7_Imola",
+  "participantId": "P3",
+  "date": "2026-02-01T12:41:08.717Z",
+  "track": "Imola",
+  "trackId": 27,
+  "seasonType": "control",
+  "seasonNumber": 3,
+  "raceNumber": 7,
+  "totalLaps": 16,
+  "difficulty": 80,
+  "startingPosition": 15,
+  "finishPosition": 3,
+  "points": 15,
+  "fastestLap": false,
+  "bestLapMs": 79853,
+  "avgLapMs": 82721,
+  "pitStops": [
+    {
+      "lap": 7,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 21,
+  "llmAvgLatencyMs": 2434,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 7,
+  "llmDriverQuestions": 12,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. Good race, could've been P1 but the leader was uncatchable and P2 was super close. Human errors with the driving and ERS managemnt. Pits were manageable. Stopped on lap7 for hards from mediums"
+}

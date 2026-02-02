@@ -1,0 +1,60 @@
+{
+  "raceId": "S1_control_R5_Silverstone",
+  "date": "2026-01-28T20:47:10.205Z",
+  "track": "Silverstone",
+  "trackId": 7,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 5,
+  "totalLaps": 26,
+  "difficulty": 80,
+  "startingPosition": 19,
+  "finishPosition": 5,
+  "points": 10,
+  "fastestLap": false,
+  "bestLapMs": 92113,
+  "avgLapMs": 96141,
+  "pitStops": [
+    {
+      "lap": 8,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 12,
+      "positionAfter": 12,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 17,
+      "compoundFrom": "Medium",
+      "compoundTo": "Medium",
+      "positionBefore": 5,
+      "positionAfter": 5,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [
+    {
+      "lap": 10,
+      "from": "Overcast",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 0,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 39,
+  "llmAvgLatencyMs": 2470,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 4,
+  "llmERSCalls": 12,
+  "llmDriverQuestions": 22,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 26 laps completed with standard 2 stops: Stop-1 on L8 from softs to mediums and Stop-2 on L16 from mediums to mediums. Started P19 and finished P5. Stop-2 should've gone for hards becasue mediums degraded a lot faster with 80%+ wear rate on front left and damaged front wing while defending for position on last few laps. Human error, could've done better but happy with the result."
+}

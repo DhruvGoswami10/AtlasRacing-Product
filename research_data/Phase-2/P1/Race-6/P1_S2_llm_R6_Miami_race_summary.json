@@ -1,0 +1,41 @@
+{
+  "raceId": "P1_S2_llm_R6_Miami",
+  "participantId": "P1",
+  "date": "2026-01-30T18:47:38.642Z",
+  "track": "Miami",
+  "trackId": 30,
+  "seasonType": "llm",
+  "seasonNumber": 2,
+  "raceNumber": 6,
+  "totalLaps": 14,
+  "difficulty": 80,
+  "startingPosition": 20,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 90831,
+  "avgLapMs": 94356,
+  "pitStops": [
+    {
+      "lap": 11,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 1,
+      "positionAfter": 1,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 25,
+  "llmAvgLatencyMs": 2335,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 10,
+  "llmERSCalls": 6,
+  "llmDriverQuestions": 8,
+  "followedRate": 82,
+  "notes": "Strategy Quality: correct. P20 to P1. 14 laps completed and 1 Stop on Lap10 from mediums to hards. Amazing strategy calls with ERS. Now this is tricky because LLM does not stick to one call. Ofcourse the trick is when I says box lap 10 it means box end of lap 9 so when you are in the pitlane it's lap10. Good call monitoring tyres and making early call. 100% follow rate."
+}

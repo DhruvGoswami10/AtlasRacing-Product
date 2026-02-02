@@ -1,0 +1,70 @@
+{
+  "raceId": "S1_control_R7_Monza",
+  "date": "2026-01-29T17:01:12.034Z",
+  "track": "Monza",
+  "trackId": 11,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 7,
+  "totalLaps": 27,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 2,
+  "points": 18,
+  "fastestLap": true,
+  "bestLapMs": 83529,
+  "avgLapMs": 99142,
+  "pitStops": [
+    {
+      "lap": 16,
+      "compoundFrom": "Hard",
+      "compoundTo": "Medium",
+      "positionBefore": 3,
+      "positionAfter": 3,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 23,
+      "compoundFrom": "Medium",
+      "compoundTo": "Soft",
+      "positionBefore": 2,
+      "positionAfter": 2,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [
+    {
+      "lap": 1,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 3,
+      "from": "Light Cloud",
+      "to": "Storm"
+    },
+    {
+      "lap": 5,
+      "from": "Storm",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 0,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 2,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 28,
+  "llmAvgLatencyMs": 3121,
+  "llmStrategyCommits": 0,
+  "llmStrategyAmends": 2,
+  "llmERSCalls": 13,
+  "llmDriverQuestions": 13,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 27 laps completed. 4 stops of which 2 of them were done under red flag so no record for that on my side but 2 stops done under full race: Stop-1 from hards to mediums on Lap16 and Stop-2 on Lap-23 from Mediums to softs. Started P16 and finished P2. Could've been P1 but a lot of human errors in terms of driving. "
+}

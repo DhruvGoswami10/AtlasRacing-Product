@@ -36,14 +36,14 @@ export const TRACK_MAPPINGS: Record<number, TrackInfo> = {
   22: { id: 22, name: 'Silverstone Short', country: 'Great Britain', svgFile: null, trackLength: 3660 },
   23: { id: 23, name: 'COTA Short', country: 'USA', svgFile: null, trackLength: 3426 },
   24: { id: 24, name: 'Suzuka Short', country: 'Japan', svgFile: null, trackLength: 3274 },
-  25: { id: 25, name: 'Jeddah', country: 'Saudi Arabia', svgFile: null, trackLength: 6174 },
-  26: { id: 26, name: 'Lusail', country: 'Qatar', svgFile: null, trackLength: 5419 },
-  27: { id: 27, name: 'Miami', country: 'USA', svgFile: null, trackLength: 5412 },
-  28: { id: 28, name: 'Las Vegas', country: 'USA', svgFile: null, trackLength: 6201 },
-  29: { id: 29, name: 'Zandvoort', country: 'Netherlands', svgFile: 'netherlands', trackLength: 4259 },
-  30: { id: 30, name: 'Imola', country: 'Italy', svgFile: null, trackLength: 4909 },
-  31: { id: 31, name: 'Portimao', country: 'Portugal', svgFile: null, trackLength: 4653 },
-  32: { id: 32, name: 'Hanoi', country: 'Vietnam', svgFile: 'vietnam', trackLength: 5607 },
+  25: { id: 25, name: 'Hanoi', country: 'Vietnam', svgFile: 'vietnam', trackLength: 5607 },
+  26: { id: 26, name: 'Zandvoort', country: 'Netherlands', svgFile: 'netherlands', trackLength: 4259 },
+  27: { id: 27, name: 'Imola', country: 'Italy', svgFile: null, trackLength: 4909 },
+  28: { id: 28, name: 'Portimao', country: 'Portugal', svgFile: null, trackLength: 4653 },
+  29: { id: 29, name: 'Jeddah', country: 'Saudi Arabia', svgFile: null, trackLength: 6174 },
+  30: { id: 30, name: 'Miami', country: 'USA', svgFile: null, trackLength: 5412 },
+  31: { id: 31, name: 'Las Vegas', country: 'USA', svgFile: null, trackLength: 6201 },
+  32: { id: 32, name: 'Losail', country: 'Qatar', svgFile: null, trackLength: 5419 },
 };
 
 // Get track info by ID

@@ -1,0 +1,50 @@
+{
+  "raceId": "P3_S3_control_R8_Monaco",
+  "participantId": "P3",
+  "date": "2026-02-01T13:17:03.647Z",
+  "track": "Monaco",
+  "trackId": 5,
+  "seasonType": "control",
+  "seasonNumber": 3,
+  "raceNumber": 8,
+  "totalLaps": 20,
+  "difficulty": 80,
+  "startingPosition": 19,
+  "finishPosition": 4,
+  "points": 12,
+  "fastestLap": true,
+  "bestLapMs": 74727,
+  "avgLapMs": 80084,
+  "pitStops": [
+    {
+      "lap": 6,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 16,
+      "compoundFrom": "Hard",
+      "compoundTo": "Medium",
+      "positionBefore": 5,
+      "positionAfter": 5,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 29,
+  "llmAvgLatencyMs": 2683,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 9,
+  "llmDriverQuestions": 18,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. Good stuff but the nature of monaco track is: it is super difficult to overtake, specially catch the driver in front all while not hitting any walls. So Stop1 on Lap6 and stop 2 on lap16. M -> h -> M"
+}

@@ -1,0 +1,70 @@
+{
+  "raceId": "S1_control_R6_Spa",
+  "date": "2026-01-29T14:32:15.664Z",
+  "track": "Spa",
+  "trackId": 10,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 6,
+  "totalLaps": 22,
+  "difficulty": 80,
+  "startingPosition": 17,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 109311,
+  "avgLapMs": 113328,
+  "pitStops": [
+    {
+      "lap": 8,
+      "compoundFrom": "Medium",
+      "compoundTo": "Medium",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 17,
+      "compoundFrom": "Medium",
+      "compoundTo": "Soft",
+      "positionBefore": 2,
+      "positionAfter": 2,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 2,
+  "weatherChanges": [
+    {
+      "lap": 1,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 10,
+      "from": "Light Cloud",
+      "to": "Overcast"
+    },
+    {
+      "lap": 20,
+      "from": "Overcast",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 0,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 33,
+  "llmAvgLatencyMs": 2709,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 1,
+  "llmERSCalls": 10,
+  "llmDriverQuestions": 21,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 22 Laps completed. @ stops: Stop-1 from mediums to mediums on Lap7 and stop-2 on Lap16 from mediums to softs. Massive result going from P17 to P1. Great ERS management from myside. Slight human error and damaged front wing which was replaced on Stop-1. Great pace and recovery afterwards. "
+}

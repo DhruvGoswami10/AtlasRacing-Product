@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_llm_R17_Baku",
+  "participantId": "P2",
+  "date": "2026-01-31T17:56:57.091Z",
+  "track": "Baku",
+  "trackId": 20,
+  "seasonType": "llm",
+  "seasonNumber": 2,
+  "raceNumber": 17,
+  "totalLaps": 13,
+  "difficulty": 80,
+  "startingPosition": 17,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": true,
+  "bestLapMs": 104221,
+  "avgLapMs": 119066,
+  "pitStops": [
+    {
+      "lap": 3,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 0,
+      "positionAfter": 0,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 1,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 20,
+  "llmAvgLatencyMs": 3232,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 7,
+  "llmERSCalls": 5,
+  "llmDriverQuestions": 7,
+  "followedRate": 88,
+  "notes": "Strategy Quality: correct. So definately did not box on Lap5 as LLM claims. It completely missed the Red flag. Of course the game stops under red flag on lap-3 and then restarted on lap7. changed from mediums to hards and banger race with awesome ERS strategy calls. HAPPY WITH THE RESULTS AND SURELY FOLLOWING LLM advices. Not LLMs fault at all!"
+}

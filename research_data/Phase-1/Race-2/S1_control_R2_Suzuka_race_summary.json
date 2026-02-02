@@ -1,0 +1,74 @@
+{
+  "raceId": "S1_control_R2_Suzuka",
+  "date": "2026-01-27T20:45:42.871Z",
+  "track": "Suzuka",
+  "trackId": 13,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 2,
+  "totalLaps": 27,
+  "difficulty": 80,
+  "startingPosition": 17,
+  "finishPosition": 20,
+  "points": 0,
+  "fastestLap": false,
+  "bestLapMs": 94035,
+  "avgLapMs": 103181,
+  "pitStops": [
+    {
+      "lap": 11,
+      "compoundFrom": "Medium",
+      "compoundTo": "Soft",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 18,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 8,
+      "positionAfter": 8,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 18,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 0,
+      "positionAfter": 0,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 3,
+  "weatherChanges": [
+    {
+      "lap": 12,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 21,
+      "from": "Light Cloud",
+      "to": "Overcast"
+    },
+    {
+      "lap": 0,
+      "from": "Overcast",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 1,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 37,
+  "llmAvgLatencyMs": 2294,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 3,
+  "llmERSCalls": 10,
+  "llmDriverQuestions": 23,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. Started P17 and DNF because of front wing damage and human error. 2 Stops: Stop-1 on Lap11 from mediums to softs and Stop-2 on Lap18 from Softs to mediums cheap stop under safety car."
+}

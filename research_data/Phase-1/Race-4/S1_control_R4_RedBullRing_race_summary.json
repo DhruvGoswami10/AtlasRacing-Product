@@ -1,0 +1,84 @@
+{
+  "raceId": "S1_control_R4_RedBullRing",
+  "date": "2026-01-28T19:56:18.196Z",
+  "track": "Red Bull Ring",
+  "trackId": 17,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 4,
+  "totalLaps": 36,
+  "difficulty": 80,
+  "startingPosition": 15,
+  "finishPosition": 3,
+  "points": 15,
+  "fastestLap": true,
+  "bestLapMs": 69305,
+  "avgLapMs": 78280,
+  "pitStops": [
+    {
+      "lap": 6,
+      "compoundFrom": "Wet",
+      "compoundTo": "Inter",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 21,
+      "compoundFrom": "Inter",
+      "compoundTo": "Inter",
+      "positionBefore": 8,
+      "positionAfter": 8,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    },
+    {
+      "lap": 26,
+      "compoundFrom": "Inter",
+      "compoundTo": "Medium",
+      "positionBefore": 6,
+      "positionAfter": 6,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 3,
+  "weatherChanges": [
+    {
+      "lap": 1,
+      "from": "Clear",
+      "to": "Storm"
+    },
+    {
+      "lap": 6,
+      "from": "Storm",
+      "to": "Light Rain"
+    },
+    {
+      "lap": 27,
+      "from": "Light Rain",
+      "to": "Overcast"
+    },
+    {
+      "lap": 30,
+      "from": "Overcast",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 36,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 0,
+  "virtualSafetyCars": 1,
+  "llmTotalCalls": 46,
+  "llmAvgLatencyMs": 2321,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 2,
+  "llmERSCalls": 17,
+  "llmDriverQuestions": 26,
+  "followedRate": 0,
+  "notes": "Strategy Quality: correct. 36 laps completed. 3 stops: stop-1 on L6 from wets to inters, stop-2 on L20 from inters to inters and on L26 from inters to mediums. Recieved 10s penalty (for collision apparently but it was wrong given in my opinion) and served it in pits when making first stop on L6. Rest was amazing from P15 to P3. Could've done better ERS management to get P2 but happy with the result."
+}

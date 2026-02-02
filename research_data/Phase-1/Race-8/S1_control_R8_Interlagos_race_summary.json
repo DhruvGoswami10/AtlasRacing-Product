@@ -1,0 +1,61 @@
+{
+  "raceId": "S1_control_R8_Interlagos",
+  "date": "2026-01-29T18:15:01.437Z",
+  "track": "Interlagos",
+  "trackId": 16,
+  "seasonType": "control",
+  "seasonNumber": 1,
+  "raceNumber": 8,
+  "totalLaps": 36,
+  "difficulty": 80,
+  "startingPosition": 15,
+  "finishPosition": 1,
+  "points": 25,
+  "fastestLap": false,
+  "bestLapMs": 73369,
+  "avgLapMs": 75360,
+  "pitStops": [
+    {
+      "lap": 16,
+      "compoundFrom": "Medium",
+      "compoundTo": "Hard",
+      "positionBefore": 6,
+      "positionAfter": 6,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [
+    {
+      "lap": 6,
+      "from": "Clear",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 15,
+      "from": "Light Cloud",
+      "to": "Overcast"
+    },
+    {
+      "lap": 36,
+      "from": "Overcast",
+      "to": "Light Cloud"
+    },
+    {
+      "lap": 0,
+      "from": "Light Cloud",
+      "to": "Clear"
+    }
+  ],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 31,
+  "llmAvgLatencyMs": 3178,
+  "llmStrategyCommits": 0,
+  "llmStrategyAmends": 0,
+  "llmERSCalls": 15,
+  "llmDriverQuestions": 16,
+  "followedRate": null,
+  "notes": "36 laps completed with only 1 stop on Lap16 from mediums to hards. Mega performance from P15 to P1. No stupidity from my side."
+}

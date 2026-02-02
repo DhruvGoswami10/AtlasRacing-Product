@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_control_R12_Silverstone",
+  "participantId": "P2",
+  "date": "2026-01-31T15:24:11.751Z",
+  "track": "Silverstone",
+  "trackId": 7,
+  "seasonType": "control",
+  "seasonNumber": 2,
+  "raceNumber": 12,
+  "totalLaps": 13,
+  "difficulty": 80,
+  "startingPosition": 16,
+  "finishPosition": 13,
+  "points": 0,
+  "fastestLap": false,
+  "bestLapMs": 92306,
+  "avgLapMs": 99343,
+  "pitStops": [
+    {
+      "lap": 7,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 0,
+      "positionAfter": 0,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 1,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 28,
+  "llmAvgLatencyMs": 2534,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 3,
+  "llmERSCalls": 6,
+  "llmDriverQuestions": 18,
+  "followedRate": 0,
+  "notes": "Strategy Quality: wrong. P16 to P13 in 13 laps with 1 stop on lap7 from softs to mediums. Horrible ERS management, no idea where and how to save because I was in constant threat of being overtaken by the carts behind and no idea when to stop, just went with the flow and did one stop luckily happened under SC."
+}

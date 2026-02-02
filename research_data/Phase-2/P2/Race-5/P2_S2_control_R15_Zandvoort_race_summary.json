@@ -1,0 +1,41 @@
+{
+  "raceId": "P2_S2_control_R15_Zandvoort",
+  "participantId": "P2",
+  "date": "2026-01-31T16:47:35.544Z",
+  "track": "Zandvoort",
+  "trackId": 26,
+  "seasonType": "control",
+  "seasonNumber": 2,
+  "raceNumber": 15,
+  "totalLaps": 18,
+  "difficulty": 80,
+  "startingPosition": 18,
+  "finishPosition": 12,
+  "points": 0,
+  "fastestLap": false,
+  "bestLapMs": 75255,
+  "avgLapMs": 78133,
+  "pitStops": [
+    {
+      "lap": 10,
+      "compoundFrom": "Soft",
+      "compoundTo": "Medium",
+      "positionBefore": 13,
+      "positionAfter": 13,
+      "triggeredBy": "driver",
+      "llmRecommendedLap": null
+    }
+  ],
+  "totalPitStops": 1,
+  "weatherChanges": [],
+  "safetyCars": 0,
+  "virtualSafetyCars": 0,
+  "llmTotalCalls": 27,
+  "llmAvgLatencyMs": 2913,
+  "llmStrategyCommits": 1,
+  "llmStrategyAmends": 2,
+  "llmERSCalls": 8,
+  "llmDriverQuestions": 16,
+  "followedRate": 0,
+  "notes": "Strategy Quality: wrong. P18 to P12 in 18 laps with 1 stop on lap10 from softs to mediums. Had collision on first few laps that affected the performance."
+}

@@ -61,6 +61,7 @@ export const usePitStopTracker = (telemetry: TelemetryData | null): PitStopTrack
     startingCompound: null,
     compoundsUsed: new Set<string>(),
   });
+  const initialPitExitRef = useRef(true); // Skip first pit exit (race start)
 
   useEffect(() => {
     if (!telemetry) {
@@ -96,6 +97,14 @@ export const usePitStopTracker = (telemetry: TelemetryData | null): PitStopTrack
 
     if (!inPitNow && internal.pitEntryActive) {
       internal.pitEntryActive = false;
+
+      // Skip the initial pit exit at race start (car starts in pit lane)
+      if (initialPitExitRef.current) {
+        initialPitExitRef.current = false;
+        internal.compoundAtPitEntry = null;
+        return;
+      }
+
       internal.stopsCompleted += 1;
       internal.lastStopLap = currentLap || internal.lastStopLap;
 

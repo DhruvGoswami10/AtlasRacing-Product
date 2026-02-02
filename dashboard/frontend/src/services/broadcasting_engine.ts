@@ -85,7 +85,7 @@ const COOLDOWNS: Record<BroadcastType, number> = {
   sc_restart: 0,            // No cooldown - critical event
   weather_change: 30000,    // 30s between weather updates
   rain_incoming: 120000,    // 2 minutes between rain warnings
-  ers_advice: 45000,        // 45s between ERS advice
+  ers_advice: 90000,        // 90s between ERS advice (reduced spam)
   fastest_lap: 0,           // No cooldown - celebration event
   final_laps: 60000,        // 1 minute between final lap alerts
 };
@@ -725,6 +725,9 @@ export class BroadcastingEngine {
 
     // Only broadcast high priority or critical recommendations
     if (ersAdvice.priority === 'low') return;
+
+    // Skip redundant ERS advice during active battles (battle_start already covers it)
+    if (this.battleState.active && ersAdvice.priority !== 'critical') return;
 
     const ersPercent = (telemetry.ers_store_energy || 0) / 4000000 * 100;
     const ersMode = telemetry.ers_deploy_mode || 0;
