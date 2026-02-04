@@ -241,14 +241,16 @@ export function DashboardSelection({
                 <span className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
                   Welcome {displayName}
                 </span>
-                <Button
-                  onClick={() => signOut().catch(() => undefined)}
-                  variant="outline"
-                  className="flex items-center gap-2 bg-card/50 hover:bg-card/80"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
+                {user?.id !== 'standalone-user' && (
+                  <Button
+                    onClick={() => signOut().catch(() => undefined)}
+                    variant="outline"
+                    className="flex items-center gap-2 bg-card/50 hover:bg-card/80"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </Button>
+                )}
               </div>
             </div>
           </div>

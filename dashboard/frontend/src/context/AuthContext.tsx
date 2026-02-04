@@ -70,11 +70,49 @@ async function upsertProfile(user: User): Promise<void> {
   }
 }
 
+// Check if Supabase is configured (has real credentials, not placeholders)
+const isSupabaseConfigured = (() => {
+  const url = process.env.REACT_APP_SUPABASE_URL;
+  const key = process.env.REACT_APP_SUPABASE_ANON_KEY;
+  return !!(url && key && !url.includes('your_') && !key.includes('your_'));
+})();
+
+// Mock session for standalone mode (no Supabase)
+const STANDALONE_SESSION = {
+  access_token: 'standalone',
+  refresh_token: 'standalone',
+  expires_in: 999999,
+  token_type: 'bearer',
+  user: {
+    id: 'standalone-user',
+    email: 'driver@atlasracing.local',
+    app_metadata: {},
+    user_metadata: { username: 'Driver' },
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  },
+} as unknown as Session;
+
+const STANDALONE_PROFILE: UserProfile = {
+  id: 'standalone-user',
+  email: 'driver@atlasracing.local',
+  username: 'Driver',
+  subscription_tier: null,
+  download_access: true,
+  app_version_access: null,
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(
+    isSupabaseConfigured ? null : STANDALONE_SESSION
+  );
+  const [user, setUser] = useState<User | null>(
+    isSupabaseConfigured ? null : (STANDALONE_SESSION.user as unknown as User)
+  );
+  const [profile, setProfile] = useState<UserProfile | null>(
+    isSupabaseConfigured ? null : STANDALONE_PROFILE
+  );
+  const [loading, setLoading] = useState(isSupabaseConfigured);
   const [rememberMe, setRememberMeState] = useState<boolean>(() => {
     const stored = localStorage.getItem(REMEMBER_ME_KEY);
     if (stored === null) return true;
@@ -86,6 +124,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [rememberMe]);
 
   useEffect(() => {
+    // Skip Supabase auth entirely in standalone mode
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     let isMounted = true;
 
     const loadProfile = async (nextUser: User) => {
