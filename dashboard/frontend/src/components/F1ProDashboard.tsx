@@ -180,11 +180,6 @@ const convertTelemetry = (data: TelemetryData | null): F1TelemetryData => {
       const raw = data.differential_on_throttle || 70;
       const sessionType = getSessionType(data.session_type);
 
-      // Log to debug what's being sent
-      if (raw !== 70 && raw !== 50 && raw !== 0) {
-        console.log('DIFF Debug - Raw:', raw, 'Session:', sessionType);
-      }
-
       // Time Trial works correctly, don't change it
       if (sessionType === 'TIME TRIAL') {
         return Math.min(100, Math.max(10, raw));
@@ -318,38 +313,6 @@ export function F1ProDashboard() {
 
   // Monitor for flag changes from real F1 24 marshal zones
   useEffect(() => {
-    // Debug logging for flags AND car settings
-    if (rawTelemetry) {
-      // Log car settings changes
-      if (rawTelemetry.brake_bias !== undefined || rawTelemetry.differential_on_throttle !== undefined) {
-        console.log('Car Settings:', {
-          brake_bias: rawTelemetry.brake_bias,
-          differential_on_throttle: rawTelemetry.differential_on_throttle,
-          converted_brakeBalance: telemetry.brakeBalance,
-          converted_differential: telemetry.differential
-        });
-      }
-
-      // Debug ERS data
-      if (rawTelemetry.ers_deploy_mode !== undefined || rawTelemetry.ers_store_energy !== undefined) {
-        console.log('ERS Debug:', {
-          ers_deploy_mode: rawTelemetry.ers_deploy_mode,
-          ers_store_energy: rawTelemetry.ers_store_energy,
-          condition_check: rawTelemetry.ers_deploy_mode > 0,
-          should_show_yellow: rawTelemetry.ers_deploy_mode && rawTelemetry.ers_deploy_mode > 0
-        });
-      }
-
-      // Log flag data
-      if (rawTelemetry.safety_car_status || rawTelemetry.marshal_zone_flags) {
-        console.log('Flag data:', {
-          safety_car_status: rawTelemetry.safety_car_status,
-          marshal_zone_flags: rawTelemetry.marshal_zone_flags,
-          marshal_zones_count: rawTelemetry.marshal_zones_count
-        });
-      }
-    }
-
     // Create a flag signature to detect actual changes
     const currentFlagSignature = `${rawTelemetry?.safety_car_status || 0}-${JSON.stringify(rawTelemetry?.marshal_zone_flags || [])}`;
 

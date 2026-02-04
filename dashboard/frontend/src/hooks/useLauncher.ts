@@ -47,7 +47,6 @@ export const useLauncher = () => {
   }, []);
 
   const setTheme = useCallback((theme: 'light' | 'dark') => {
-    console.log('setTheme called with:', theme); // Debug log
     setState(prev => ({
       ...prev,
       theme
@@ -58,7 +57,6 @@ export const useLauncher = () => {
 
   const toggleTheme = useCallback(() => {
     const newTheme = state.theme === 'light' ? 'dark' : 'light';
-    console.log('toggleTheme called:', state.theme, '->', newTheme); // Debug log
     setState(prev => ({
       ...prev,
       theme: newTheme

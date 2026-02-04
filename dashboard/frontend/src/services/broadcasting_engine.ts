@@ -298,7 +298,6 @@ export class BroadcastingEngine {
     broadcasts: Broadcast[]
   ) {
     const isInDrsRange = gapAhead < 1.0;
-    const isInBattleRange = gapAhead < this.BATTLE_EXIT_GAP;
 
     if (this.battleState.active) {
       // Check for battle end
