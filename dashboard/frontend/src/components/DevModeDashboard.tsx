@@ -18,6 +18,7 @@ import { useTyreSets } from '../hooks/useTyreSets';
 import { ResearchReviewPanel } from './ResearchReviewPanel';
 import {
   getResearchLogger,
+  isResearchEnabled,
   TRACK_NAMES,
   WEATHER_NAMES,
   type LapRow,
@@ -2905,8 +2906,8 @@ export function DevModeDashboard() {
             <p className="text-[10px] text-gray-500 mt-1">Stored locally in browser. Never sent to our servers.</p>
           </div>
 
-          {/* Data Logging Controls */}
-          <div className="mb-3 p-3 bg-gray-800/40 rounded border border-gray-700">
+          {/* Data Logging Controls (Research Mode Only) */}
+          {isResearchEnabled() && (<div className="mb-3 p-3 bg-gray-800/40 rounded border border-gray-700">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <FlaskConical className="w-3.5 h-3.5 text-violet-400" />
@@ -3000,7 +3001,7 @@ export function DevModeDashboard() {
                 </div>
               </div>
             )}
-          </div>
+          </div>)}
 
           {/* Engineer Chat Component */}
           <EngineerChat
@@ -3010,12 +3011,12 @@ export function DevModeDashboard() {
             triggers={engineerTriggers}
             apiKey={openaiApiKey}
             className="h-[400px]"
-            researchMode={researchMode}
+            researchMode={isResearchEnabled() && researchMode}
           />
         </Card>
 
         {/* Post-Race Review Panel (shown after Stop is clicked) */}
-        {showPostRaceReview && (
+        {isResearchEnabled() && showPostRaceReview && (
           <div className="col-span-2">
             <ResearchReviewPanel
               onClose={() => setShowPostRaceReview(false)}

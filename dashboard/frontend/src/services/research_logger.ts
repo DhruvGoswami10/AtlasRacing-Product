@@ -598,6 +598,14 @@ export function downloadAllData(data: ExportData): void {
 }
 
 // ============================================================================
+// Research Mode Toggle
+// ============================================================================
+
+// Research logging is disabled by default in the product build.
+// Set REACT_APP_ENABLE_RESEARCH=true in .env to enable data collection.
+const RESEARCH_ENABLED = process.env.REACT_APP_ENABLE_RESEARCH === 'true';
+
+// ============================================================================
 // Singleton
 // ============================================================================
 
@@ -606,8 +614,25 @@ let instance: ResearchLoggerService | null = null;
 export function getResearchLogger(): ResearchLoggerService {
   if (!instance) {
     instance = new ResearchLoggerService();
+    if (!RESEARCH_ENABLED) {
+      // In product mode, disable all logging by making the instance inert.
+      // Methods still exist (no call-site changes needed) but do nothing.
+      instance.startRace = () => {};
+      instance.endRace = () => {};
+      instance.logLap = () => {};
+      instance.logInteraction = () => '';
+      instance.logPitStop = () => {};
+      instance.updateLapPitCompound = () => false;
+      instance.logWeatherChange = () => {};
+      instance.logSafetyCar = () => {};
+      instance.isActive = () => false;
+    }
   }
   return instance;
+}
+
+export function isResearchEnabled(): boolean {
+  return RESEARCH_ENABLED;
 }
 
 export function resetResearchLogger(): void {

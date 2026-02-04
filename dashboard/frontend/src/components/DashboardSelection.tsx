@@ -40,7 +40,7 @@ const dashboards: DashboardOption[] = [
   },
   {
     id: 'f1-pro',
-    name: 'F1 Pro Dashboard',
+    name: 'F1 Dashboard',
     description:
       'Grid-based F1 dashboard with sector timing bars, comprehensive telemetry layout, and professional F1 broadcast styling',
     features: [
@@ -56,7 +56,7 @@ const dashboards: DashboardOption[] = [
   },
   {
     id: 'gt-endurance',
-    name: 'GT Endurance Dashboard',
+    name: 'Endurance Dashboard',
     description: 'Clean GT racing interface inspired by modern sim racing displays',
     features: ['Central Gear Display', 'RPM Lights', 'Input Monitoring', 'Tyre Temps'],
     icon: <Gauge className="w-6 h-6" />,
@@ -81,7 +81,7 @@ const dashboards: DashboardOption[] = [
   },
   {
     id: 'gp-race-board',
-    name: 'GP Race Board',
+    name: 'Race Director',
     description:
       'Multiview race board with leaderboard, track map, telemetry traces, and tire status in a GT-style layout',
     features: [
