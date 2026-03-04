@@ -77,3 +77,9 @@ electron-builder-output/
 # Large recording files (exceed GitHub 100MB limit)
 *.f124
 *.f125
+
+# Research paper drafts
+*.pdf
+
+# Windows artifacts
+nul

@@ -27,7 +27,7 @@ function AppContent() {
   const [selectedDashboard, setSelectedDashboard] = useState<DashboardId | null>(null);
   const location = useLocation();
 
-  const { telemetry, connectionStatus, connect } = useTelemetry();
+  const { telemetry, connectionStatus, connect, retry } = useTelemetry();
   const { session, loading } = useAuth();
 
   useEffect(() => {
@@ -154,6 +154,7 @@ function AppContent() {
             onDashboardSelect={handleDashboardSelect}
             connectionStatus={connectionStatus}
             connectedGameName={connectedGameName}
+            onRetryConnection={() => { retry().catch(() => undefined); }}
           />
         )}
 

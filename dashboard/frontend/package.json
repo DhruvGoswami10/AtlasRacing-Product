@@ -5,6 +5,7 @@
   "main": "electron/main.js",
   "homepage": "./",
   "private": true,
+  "license": "MIT",
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-accordion": "^1.2.12",

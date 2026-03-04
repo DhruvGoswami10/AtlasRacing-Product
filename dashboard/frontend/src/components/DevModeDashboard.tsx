@@ -4,10 +4,9 @@ import { Card } from './ui/card';
 import { convertTelemetry, StandardizedTelemetry, getTireCompound, getVisualCompound } from '../utils/telemetryConverter';
 import { TYRE_COMPOUNDS } from '../types/telemetry';
 import type { MultiCarTelemetryData, RaceEvent, TelemetryData } from '../types/telemetry';
-import { Key, Eye, EyeOff, ExternalLink, FlaskConical } from 'lucide-react';
+import { Key, Eye, EyeOff, FlaskConical } from 'lucide-react';
 import { DevModeTrackMap, TrackOpponent, MapPoint as TrackMapPoint } from './DevModeTrackMap';
 import { useErsAdvisor } from '../hooks/useErsAdvisor';
-import { StrategyPanel } from './StrategyPanel';
 import { useRaceEvents } from '../hooks/useRaceEvents';
 import { DevModeAtlasLinkPanel } from './DevModeAtlasLinkPanel';
 import { EngineerChat } from './EngineerChat';
@@ -23,39 +22,7 @@ import {
   WEATHER_NAMES,
   type LapRow,
 } from '../services/research_logger';
-
-const fuelStatusStyles = [
-  { label: 'Optimal', className: 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/40' },
-  { label: 'Monitor', className: 'bg-amber-500/20 text-amber-200 border border-amber-500/40' },
-  { label: 'Critical', className: 'bg-rose-600/20 text-rose-200 border border-rose-500/40' },
-] as const;
-
-const tyreStatusStyles = [
-  { label: 'Healthy', className: 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/40' },
-  { label: 'Caution', className: 'bg-amber-500/20 text-amber-200 border border-amber-500/40' },
-  { label: 'Critical', className: 'bg-rose-600/20 text-rose-200 border border-rose-500/40' },
-] as const;
-
-const pitStatusStyles = [
-  { label: 'Hold', className: 'bg-slate-600/20 text-slate-200 border border-slate-600/40' },
-  { label: 'Plan', className: 'bg-amber-500/20 text-amber-200 border border-amber-500/40' },
-  { label: 'Box Now', className: 'bg-rose-600/20 text-rose-200 border border-rose-500/40' },
-] as const;
-
-const ersModeStyles = [
-  { label: 'Balanced', className: 'bg-sky-500/20 text-sky-200 border border-sky-500/40' },
-  { label: 'Harvest', className: 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/40' },
-  { label: 'Attack', className: 'bg-orange-500/20 text-orange-200 border border-orange-500/40' },
-  { label: 'Defend', className: 'bg-rose-600/20 text-rose-200 border border-rose-500/40' },
-] as const;
-
-function pickStatusStyle<T>(map: readonly T[], index?: number): T {
-  if (typeof index !== 'number' || Number.isNaN(index)) {
-    return map[0];
-  }
-  const clamped = Math.max(0, Math.min(map.length - 1, Math.trunc(index)));
-  return map[clamped];
-}
+import { DevModeHeaderBar, DevModeF1Strategy, DevModeCarInfoPanels, DevModeDriversGrid, DevModeDebugPanel } from './devmode';
 
 const resolveCompoundLabel = (visual?: number, actual?: number): string => {
   const normaliseId = (value: number | undefined) =>
@@ -158,7 +125,6 @@ export function DevModeDashboard() {
     { enabled: connectionStatus === 'connected' }
   );
 
-  const [gapDisplayMode, setGapDisplayMode] = useState<'leader' | 'interval'>('leader');
   const [deltaMode, setDeltaMode] = useState<DeltaMode>('personal');
   const [playerHistory, setPlayerHistory] = useState<MapPoint[]>([]);
   const [trackOutline, setTrackOutline] = useState<MapPoint[]>([]);
@@ -567,24 +533,6 @@ export function DevModeDashboard() {
     lastLapDistanceRef.current = lapDistance;
   }, [lapDistance, currentLapNumber, trackOutline.length]);
 
-  const fuelStatusStyle = pickStatusStyle(fuelStatusStyles, atlasAI?.fuel_strategy_status);
-  const pitStatusStyle = pickStatusStyle(pitStatusStyles, atlasAI?.pit_strategy_status);
-  const pitStopMandatoryLabel = isF124
-    ? pitStopTracker.mandatoryStopCompleted
-      ? 'Done'
-      : 'Pending'
-    : 'N/A';
-  const pitStopMandatoryClass = isF124
-    ? pitStopTracker.mandatoryStopCompleted
-      ? 'text-emerald-300'
-      : 'text-amber-300'
-    : 'text-gray-500';
-  const pitStopCurrentCompound =
-    pitStopTracker.currentCompound ||
-    telemetry.tireCompoundVisual ||
-    telemetry.tireCompoundActual ||
-    'Unknown';
-
   const playerPosition = useMemo(() => {
     if (worldPosX === null || worldPosY === null) {
       return null;
@@ -782,18 +730,6 @@ export function DevModeDashboard() {
   const asNumber = (value: unknown) =>
     typeof value === 'number' && Number.isFinite(value) ? value : null;
 
-  const fuelPerLap = asNumber(atlasAI?.fuel_per_lap_average);
-  const fuelLapsRemaining = asNumber(atlasAI?.fuel_laps_remaining_calculated);
-  const fuelMargin = asNumber(atlasAI?.fuel_margin_laps);
-  const fuelTargetSave = asNumber(atlasAI?.fuel_target_save_per_lap);
-  const tyreDegradation = asNumber(atlasAI?.tyre_degradation_rate);
-  const tyreLifeRemaining = asNumber(atlasAI?.tyre_life_remaining_laps);
-  const tyrePerformance = asNumber(atlasAI?.tyre_performance_index);
-  const tyreStintProgress = asNumber(atlasAI?.tyre_stint_progress);
-  const pitDelta = asNumber(atlasAI?.pit_delta_time);
-  const pitDeltaWing = asNumber(atlasAI?.pit_delta_with_wing);
-  const pitNetDelta = asNumber(atlasAI?.pit_net_time_delta);
-  const pitStayOutLoss = asNumber(atlasAI?.pit_time_loss_no_pit);
   const ersAttackGap = asNumber(atlasAI?.ers_attack_gap);
   const ersDefendGap = asNumber(atlasAI?.ers_defend_gap);
   const ersHarvestGap = asNumber(atlasAI?.ers_harvest_gap);
@@ -806,75 +742,6 @@ export function DevModeDashboard() {
     aheadOpponent: primaryAhead,
     behindOpponent: primaryBehind,
   });
-  const ersStatusStyle = useMemo(() => {
-    switch (ersAdvisor.mode) {
-      case 'harvest':
-        return ersModeStyles[1];
-      case 'attack':
-        return ersModeStyles[2];
-      case 'defend':
-        return ersModeStyles[3];
-      default:
-        return ersModeStyles[0];
-    }
-  }, [ersAdvisor.mode]);
-  const fuelCalcReady = Boolean(atlasAI?.fuel_calc_ready);
-  const fuelModelReady = isF124 ? telemetry.currentLapNum >= 2 : fuelCalcReady;
-  const f1FuelExtraLaps = isF124
-    ? asNumber((rawTelemetry as any)?.fuel_remaining_laps ?? telemetry.fuelRemainingLaps)
-    : null;
-  const f1LapsRemaining =
-    isF124 && telemetry.totalLaps > 0
-      ? Math.max(0, telemetry.totalLaps - telemetry.currentLapNum)
-      : null;
-  const f1FuelRangeLaps =
-    f1FuelExtraLaps !== null && f1LapsRemaining !== null
-      ? Math.max(0, f1LapsRemaining + f1FuelExtraLaps)
-      : null;
-  const displayFuelPerLap = fuelModelReady ? fuelPerLap : null;
-  const displayFuelLapsRemaining = fuelModelReady
-    ? isF124
-      ? f1FuelRangeLaps
-      : fuelLapsRemaining
-    : null;
-  const displayFuelMargin = fuelModelReady
-    ? isF124
-      ? f1FuelExtraLaps
-      : fuelMargin
-    : null;
-  const displayFuelTargetSave = fuelModelReady ? fuelTargetSave : null;
-  const rawVisualCompound = (rawTelemetry as any)?.tyre_compound_visual;
-  const rawActualCompound = (rawTelemetry as any)?.tyre_compound_actual;
-  const tyreCompoundDisplay = resolveCompoundLabel(rawVisualCompound, rawActualCompound);
-  const tyreCompoundVisualOnly = resolveCompoundLabel(rawVisualCompound, undefined);
-  const tyreCompoundActualOnly = resolveCompoundLabel(undefined, rawActualCompound);
-  const pitWindowStatus = (() => {
-    const ideal = telemetry.pitWindowIdealLap;
-    const latest = telemetry.pitWindowLatestLap;
-    const currentLap = telemetry.currentLapNum || 0;
-    if (!ideal || !latest) {
-      return 'none';
-    }
-    if (currentLap < ideal - 2) {
-      return 'upcoming';
-    }
-    if (currentLap <= latest + 1) {
-      return 'active';
-    }
-    return 'passed';
-  })();
-  const pitWindowBadge = (() => {
-    switch (pitWindowStatus) {
-      case 'active':
-        return { label: 'Window Active', className: 'text-amber-300' };
-      case 'upcoming':
-        return { label: 'Window Upcoming', className: 'text-blue-300' };
-      case 'passed':
-        return { label: 'Window Passed', className: 'text-slate-400' };
-      default:
-        return { label: 'No Window', className: 'text-gray-500' };
-    }
-  })();
 
   const acExtended = isAC ? (rawTelemetry as any)?.ac_extended ?? null : null;
   const tyreTempSurface = useMemo(
@@ -951,25 +818,6 @@ export function DevModeDashboard() {
       return 'N/A';
     }
     return `${value.toFixed(1)}°C`;
-  };
-  const sanitizeControlValue = (value: number | null | undefined) => {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-      return null;
-    }
-    if (value >= 250 || value < 0) {
-      return null;
-    }
-    return value;
-  };
-  const formatDiscreteSetting = (value: number | null, maxSteps: number) => {
-    if (value === null) {
-      return 'N/A';
-    }
-    if (value <= 0) {
-      return 'OFF';
-    }
-    const clamped = Math.max(1, Math.min(maxSteps + 1, Math.round(value)));
-    return `${clamped}/${maxSteps + 1}`;
   };
   const acFuelInTank = isAC
     ? asNumber((rawTelemetry as any)?.fuel_in_tank ?? telemetry.fuelInTank)
@@ -1084,9 +932,6 @@ export function DevModeDashboard() {
       : acFuelMargin >= 0
         ? 'text-green-400'
         : 'text-red-400';
-  const acAidFuelRate = isAC
-    ? asNumber(acExtended?.aid_fuel_rate ?? (rawTelemetry as any)?.aid_fuel_rate)
-    : null;
   const rawLastLapSeconds = isAC ? asNumber((rawTelemetry as any)?.last_lap_time) : null;
   const rawCurrentLapSeconds = isAC ? asNumber((rawTelemetry as any)?.current_lap_time) : null;
   const rawBestLapSeconds = isAC ? asNumber((rawTelemetry as any)?.best_lap_time) : null;
@@ -1094,6 +939,9 @@ export function DevModeDashboard() {
     (rawLastLapSeconds !== null && rawLastLapSeconds > 1 ? rawLastLapSeconds : null) ??
     (rawCurrentLapSeconds !== null && rawCurrentLapSeconds > 1 ? rawCurrentLapSeconds : null) ??
     (rawBestLapSeconds !== null && rawBestLapSeconds > 1 ? rawBestLapSeconds : null);
+  const acAidFuelRate = isAC
+    ? asNumber(acExtended?.aid_fuel_rate ?? (rawTelemetry as any)?.aid_fuel_rate)
+    : null;
   const acFuelRatePerHour = isAC
     ? acFuelReady && acFuelPerLap !== null && lapSecondsForRate !== null
       ? (acFuelPerLap / lapSecondsForRate) * 3600.0
@@ -1101,216 +949,34 @@ export function DevModeDashboard() {
     : acAidFuelRate !== null && acAidFuelRate > 0
       ? acAidFuelRate * 3600.0
       : null;
-  const acPenaltyTime = isAC ? asNumber((rawTelemetry as any)?.penalty_time) : null;
-  const acTyresOut = isAC
-    ? (rawTelemetry as any)?.numberOfTyresOut ?? (rawTelemetry as any)?.number_of_tyres_out ?? 0
-    : 0;
-  const acLapInvalid = isAC
-    ? Boolean(
-        (rawTelemetry as any)?.lap_invalidated ||
-          (rawTelemetry as any)?.lap_invalid ||
-          telemetry.lapInvalid,
-      )
-    : false;
-  const acSurfaceGrip = isAC ? asNumber(acExtended?.surface_grip) : null;
-  const acWindSpeed = isAC ? asNumber(acExtended?.wind_speed) : null;
-  const acWindDirection = isAC ? asNumber(acExtended?.wind_direction) : null;
-  const acPerformanceMeter = isAC ? asNumber(acExtended?.performance_meter) : null;
-  const acBrakeBias = isAC
-    ? (() => {
-        const raw =
-          acExtended?.brake_bias ?? (rawTelemetry as any)?.brake_bias ?? telemetry.brakeBias;
-        if (typeof raw === 'number' && Number.isFinite(raw)) {
-          if (raw > 1.5) {
-            return raw;
-          }
-          return raw * 100;
-        }
-        return null;
-      })()
-    : null;
-  const acTcPrimary = sanitizeControlValue(
-    isAC
-      ? asNumber(
-          acExtended?.traction_control_setting ??
-            (rawTelemetry as any)?.traction_control_setting ??
-            telemetry.tc,
-        )
-      : null,
-  );
-  const acTcSecondary = sanitizeControlValue(
-    isAC
-      ? asNumber(
-          acExtended?.traction_control_setting_secondary ??
-            (rawTelemetry as any)?.traction_control_setting_secondary ??
-            telemetry.tc2,
-        )
-      : null,
-  );
-  const acAbsSetting = sanitizeControlValue(
-    isAC
-      ? asNumber(acExtended?.abs_setting ?? (rawTelemetry as any)?.abs_setting ?? telemetry.abs)
-      : null,
-  );
-  const rawFuelMapSetting = isAC
-    ? asNumber(
-        acExtended?.fuel_map_setting ?? (rawTelemetry as any)?.fuel_map_setting ?? telemetry.fuelMapSetting,
-      )
-    : null;
-  const rawFuelMapMax = isAC
-    ? asNumber(
-        acExtended?.fuel_map_max ?? (rawTelemetry as any)?.fuel_map_max ?? telemetry.fuelMapMax,
-      )
-    : null;
-  const acFuelMapSetting = sanitizeControlValue(rawFuelMapSetting);
-  const acFuelMapMax = rawFuelMapMax && rawFuelMapMax > 0 ? rawFuelMapMax : null;
-  const acEngineBrakeSetting = isAC
-    ? asNumber(
-        acExtended?.engine_brake_setting ??
-          (rawTelemetry as any)?.engine_brake_setting ??
-          telemetry.engineBrake,
-      )
-    : null;
-  const fallbackBrakeBiasDisplay =
-    typeof telemetry.brakeBias === 'number' && Number.isFinite(telemetry.brakeBias)
-      ? telemetry.brakeBias.toFixed(1)
-      : '50.0';
-  const AC_TC_MAX = 10;
-  const AC_ABS_MAX = 11;
-  const fuelMarginClass =
-    displayFuelMargin === null
-      ? 'text-gray-400'
-      : displayFuelMargin < 0
-        ? 'text-rose-300 font-semibold'
-        : displayFuelMargin < 0.5
-          ? 'text-amber-300'
-          : 'text-green-400';
 
-  const tyreWearValues = [
-    telemetry.tireWearFL,
-    telemetry.tireWearFR,
-    telemetry.tireWearRL,
-    telemetry.tireWearRR,
-  ].filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
-  const maxTyreWear = tyreWearValues.length > 0 ? Math.max(...tyreWearValues) : 0;
-  const tyreWearRate =
-    telemetry.tireAge > 0 && Number.isFinite(maxTyreWear) ? maxTyreWear / telemetry.tireAge : null;
-  const tyreLapsTo70 =
-    tyreWearRate !== null && tyreWearRate > 0
-      ? Math.max(0, (70 - maxTyreWear) / tyreWearRate)
-      : null;
-  const displayTyreDegradation = isF124 ? tyreWearRate : tyreDegradation;
-  const displayTyreLifeRemaining = isF124 ? tyreLapsTo70 : tyreLifeRemaining;
-  const displayTyrePerformance = isF124 ? Math.max(0, 100 - maxTyreWear) : tyrePerformance;
-  const displayTyreStintProgress = isF124
-    ? displayTyreLifeRemaining !== null && telemetry.tireAge > 0
-      ? telemetry.tireAge / (telemetry.tireAge + displayTyreLifeRemaining)
-      : null
-    : tyreStintProgress;
-  const f1TyreStatus = (() => {
-    if (!isF124) {
-      return atlasAI?.tyre_strategy_status;
-    }
-    if (maxTyreWear >= 80 || (displayTyreLifeRemaining !== null && displayTyreLifeRemaining <= 2)) {
-      return 2;
-    }
-    if (maxTyreWear >= 65 || (displayTyreLifeRemaining !== null && displayTyreLifeRemaining <= 5)) {
-      return 1;
-    }
-    return 0;
-  })();
-  const tyreStatusStyle = pickStatusStyle(tyreStatusStyles, f1TyreStatus);
-  const tyreCritical = isF124
-    ? displayTyreLifeRemaining !== null && displayTyreLifeRemaining <= 2
-    : atlasAI?.tyre_critical_warning === 1;
+  const rawVisualCompound = (rawTelemetry as any)?.tyre_compound_visual;
+  const rawActualCompound = (rawTelemetry as any)?.tyre_compound_actual;
+  const tyreCompoundDisplay = resolveCompoundLabel(rawVisualCompound, rawActualCompound);
+  const tyreCompoundVisualOnly = resolveCompoundLabel(rawVisualCompound, undefined);
+  const tyreCompoundActualOnly = resolveCompoundLabel(undefined, rawActualCompound);
 
-  const tyreDegClass =
-    displayTyreDegradation === null
-      ? 'text-gray-400'
-      : isF124
-        ? displayTyreDegradation > 6
-          ? 'text-rose-300'
-          : displayTyreDegradation > 4
-            ? 'text-amber-300'
-            : 'text-green-400'
-        : displayTyreDegradation > 1.2
-          ? 'text-rose-300'
-          : displayTyreDegradation > 0.7
-            ? 'text-amber-300'
-            : 'text-green-400';
+  // Compute strategyPanelSessionPhase locally for DevModeF1Strategy
+  const strategyPanelSessionPhase = useMemo<'formation' | 'race' | 'finished' | 'unknown'>(() => {
+    const sessionTypeLower = (telemetry.sessionType || '').toLowerCase();
+    const isRaceSession = sessionTypeLower === 'race';
+    if (!isRaceSession) return 'unknown';
 
-  const tyreLifeClass =
-    displayTyreLifeRemaining === null
-      ? 'text-gray-400'
-      : displayTyreLifeRemaining < 3
-        ? 'text-rose-300 font-semibold'
-        : displayTyreLifeRemaining < 8
-          ? 'text-amber-300'
-          : 'text-green-400';
+    // Check finish signals
+    const rawSessionFinished =
+      ((rawTelemetry as any)?.race_finished === 1) ||
+      ((rawTelemetry as any)?.session_finished === 1) ||
+      (((rawTelemetry as any)?.session_state || '').toString().toLowerCase() === 'finished');
 
-  const pitNetClass =
-    pitNetDelta === null
-      ? 'text-gray-400'
-      : pitNetDelta < 0
-        ? 'text-green-400'
-        : 'text-amber-300';
+    const findEvent = (types: string[]): RaceEvent | null =>
+      raceEvents.find((event) => types.includes(event.type)) ?? null;
+    const finishEvent = findEvent(['RCWN', 'SEND', 'CHQF']);
+    const formationEvent = findEvent(['SCFORM']);
 
-  const stayOutClass = pitStayOutLoss === null ? 'text-gray-400' : 'text-amber-300';
-  const tyrePerformanceText =
-    displayTyrePerformance === null ? '-' : `${Math.round(displayTyrePerformance)}%`;
-  const tyreStintPercent =
-    displayTyreStintProgress === null
-      ? null
-      : Math.round(Math.max(0, Math.min(1, displayTyreStintProgress)) * 100);
-  const tyreWearSummary = (() => {
-    if (maxTyreWear >= 80) {
-      return { label: `Critical (${maxTyreWear.toFixed(0)}%)`, className: 'text-rose-300 font-semibold' };
-    }
-    if (maxTyreWear >= 65) {
-      return { label: `Window (${maxTyreWear.toFixed(0)}%)`, className: 'text-amber-300' };
-    }
-    return { label: `OK (${maxTyreWear.toFixed(0)}%)`, className: 'text-emerald-300' };
-  })();
-
-  const formatDuration = (value: number | null): string => {
-    if (value === null || !Number.isFinite(value)) {
-      return '—';
-    }
-    const ms = Math.max(0, value);
-    if (ms < 1000) {
-      return '<1s';
-    }
-    if (ms < 60000) {
-      return `${(ms / 1000).toFixed(1)}s`;
-    }
-    if (ms < 3600000) {
-      return `${(ms / 60000).toFixed(1)}m`;
-    }
-    return `${(ms / 3600000).toFixed(2)}h`;
-  };
-
-  const formatSeconds = (value: number | null | undefined): string => {
-    if (value === null || value === undefined || !Number.isFinite(value)) {
-      return '—';
-    }
-    const negative = value < 0;
-    const abs = Math.abs(value);
-    const minutes = Math.floor(abs / 60);
-    const seconds = abs - minutes * 60;
-    const secondsStr = seconds < 10 ? `0${seconds.toFixed(1)}` : seconds.toFixed(1);
-    return `${negative ? '-' : ''}${minutes}:${secondsStr}`;
-  };
-
-  const sessionPhaseDebug = useMemo(() => {
-    const now = Date.now();
     const toTimestamp = (event: RaceEvent | null): number | null => {
-      if (!event) {
-        return null;
-      }
+      if (!event) return null;
       const rawTs = event.timestamp;
-      if (typeof rawTs === 'number' && Number.isFinite(rawTs)) {
-        return rawTs;
-      }
+      if (typeof rawTs === 'number' && Number.isFinite(rawTs)) return rawTs;
       if (typeof rawTs === 'string') {
         const parsed = Number(rawTs);
         return Number.isFinite(parsed) ? parsed : null;
@@ -1318,144 +984,34 @@ export function DevModeDashboard() {
       return null;
     };
 
-    const findEvent = (types: string[]): RaceEvent | null =>
-      raceEvents.find((event) => types.includes(event.type)) ?? null;
-
-    const formationEvent = findEvent(['SCFORM']);
-    const finishEvent = findEvent(['RCWN', 'SEND', 'CHQF']);
-
-    const formationTimestamp = toTimestamp(formationEvent);
+    const now = Date.now();
     const finishTimestamp = toTimestamp(finishEvent);
-
-    const formationAge = formationTimestamp !== null ? now - formationTimestamp : null;
     const finishAge = finishTimestamp !== null ? now - finishTimestamp : null;
-
-    const rawSafetyCarStatus = (rawTelemetry as any)?.safety_car_status;
-    const safetyCarStatus = telemetry.safetyCarStatus;
-    const sessionTypeLower = (telemetry.sessionType || '').toLowerCase();
-    const isRaceSession = sessionTypeLower === 'race';
-
-    const lapsRemaining =
-      telemetry.totalLaps > 0 ? telemetry.totalLaps - telemetry.currentLapNum : null;
-    const sessionTimeLeft = telemetry.sessionTimeLeft;
-
-    const rawSessionFinished =
-      ((rawTelemetry as any)?.race_finished === 1) ||
-      ((rawTelemetry as any)?.session_finished === 1) ||
-      (((rawTelemetry as any)?.session_state || '').toString().toLowerCase() === 'finished');
-
-    const formationCandidate =
-      isRaceSession &&
-      (
-        safetyCarStatus === 'Formation Lap' ||
-        rawSafetyCarStatus === 3 ||
-        (formationAge !== null && formationAge < 180000)
-      );
+    const lapsRemaining = telemetry.totalLaps > 0 ? telemetry.totalLaps - telemetry.currentLapNum : null;
 
     const finishCandidate =
-      isRaceSession &&
-      (
-        rawSessionFinished ||
-        (finishAge !== null && finishAge < 600000) ||
-        (lapsRemaining !== null && lapsRemaining <= 0 && sessionTimeLeft <= 0)
-      );
+      rawSessionFinished ||
+      (finishAge !== null && finishAge < 600000) ||
+      (lapsRemaining !== null && lapsRemaining <= 0 && telemetry.sessionTimeLeft <= 0);
 
-    const phase = isRaceSession
-      ? finishCandidate
-        ? 'Finished'
-        : formationCandidate
-          ? 'Formation Lap'
-          : 'Racing'
-      : telemetry.sessionType || 'Unknown';
+    if (finishCandidate) return 'finished';
 
-    const signals = [
-      { label: 'Safety Car Status', value: safetyCarStatus || 'Unknown' },
-      { label: 'Safety Car Raw', value: rawSafetyCarStatus ?? '—' },
-      {
-        label: 'Lap Progress',
-        value: `${Number.isFinite(telemetry.currentLapNum) ? telemetry.currentLapNum : '?'} / ${
-          Number.isFinite(telemetry.totalLaps) ? telemetry.totalLaps : '?'
-        }`,
-      },
-      {
-        label: 'Laps Remaining',
-        value: lapsRemaining !== null ? lapsRemaining.toString() : 'Unknown',
-      },
-      { label: 'Session Time Left', value: formatSeconds(sessionTimeLeft) },
-      { label: 'Formation Event Age', value: formatDuration(formationAge) },
-      { label: 'Finish Event Age', value: formatDuration(finishAge) },
-      {
-        label: 'Last Formation Event',
-        value: formationEvent ? (formationEvent.message || formationEvent.type) : 'None',
-      },
-      {
-        label: 'Last Finish Event',
-        value: finishEvent ? (finishEvent.message || finishEvent.type) : 'None',
-      },
-    ];
+    // Check formation signals
+    const formationTimestamp = toTimestamp(formationEvent);
+    const formationAge = formationTimestamp !== null ? now - formationTimestamp : null;
+    const safetyCarStatus = telemetry.safetyCarStatus;
+    const rawSafetyCarStatus = (rawTelemetry as any)?.safety_car_status;
 
-    return {
-      phase,
-      isRaceSession,
-      formationCandidate,
-      finishCandidate,
-      signals,
-    };
+    const formationCandidate =
+      safetyCarStatus === 'Formation Lap' ||
+      rawSafetyCarStatus === 3 ||
+      (formationAge !== null && formationAge < 180000);
+
+    if (formationCandidate) return 'formation';
+
+    return 'race';
   }, [raceEvents, rawTelemetry, telemetry]);
 
-  const sessionPhaseSignalColumns = useMemo(() => {
-    const signals = sessionPhaseDebug.signals;
-    if (signals.length <= 1) {
-      return [signals];
-    }
-    const half = Math.ceil(signals.length / 2);
-    return [signals.slice(0, half), signals.slice(half)];
-  }, [sessionPhaseDebug]);
-  const strategyPanelSessionPhase = useMemo<'formation' | 'race' | 'finished' | 'unknown'>(() => {
-    const phase = (sessionPhaseDebug.phase || '').toLowerCase();
-    if (phase.includes('formation')) {
-      return 'formation';
-    }
-    if (phase.includes('finish')) {
-      return 'finished';
-    }
-    if (phase.includes('race')) {
-      return 'race';
-    }
-    return 'unknown';
-  }, [sessionPhaseDebug]);
-  const sessionPhaseHeader = useMemo(() => {
-    const phase = sessionPhaseDebug.phase || 'Unknown';
-    const lower = phase.toLowerCase();
-    if (lower.includes('formation')) {
-      return { label: 'Formation', className: 'bg-amber-500/20 text-amber-100 border border-amber-400/40' };
-    }
-    if (lower.includes('finish')) {
-      return { label: 'Finished', className: 'bg-rose-500/20 text-rose-100 border border-rose-400/40' };
-    }
-    if (lower.includes('race')) {
-      return { label: 'Race', className: 'bg-emerald-500/20 text-emerald-100 border border-emerald-400/40' };
-    }
-    return { label: phase, className: 'bg-slate-700/40 text-slate-200 border border-slate-600/40' };
-  }, [sessionPhaseDebug]);
-  const formationPromptBadge = useMemo(() => {
-    const active = sessionPhaseDebug.formationCandidate;
-    return {
-      label: active ? 'Formation Prompts Queued' : 'Formation Prompts Idle',
-      className: active
-        ? 'bg-amber-500/15 text-amber-100 border border-amber-400/40'
-        : 'bg-slate-700/40 text-slate-300 border border-slate-600/40',
-    };
-  }, [sessionPhaseDebug]);
-  const postRaceBadge = useMemo(() => {
-    const fired = sessionPhaseDebug.finishCandidate;
-    return {
-      label: fired ? 'Post-Race Fired' : 'Post-Race Pending',
-      className: fired
-        ? 'bg-rose-500/20 text-rose-100 border border-rose-400/40'
-        : 'bg-slate-700/40 text-slate-300 border border-slate-600/40',
-    };
-  }, [sessionPhaseDebug]);
   if (connectionStatus === 'disconnected' || connectionStatus === 'error') {
     return (
       <div className="h-screen overflow-y-auto bg-[#050505] text-white p-6">
@@ -1490,86 +1046,11 @@ export function DevModeDashboard() {
 
   return (
     <div className="h-screen overflow-y-auto bg-[#050505] text-white p-6">
-      {/* Header Bar */}
-      <div className="bg-black border border-gray-700 rounded-2xl px-4 py-3 mb-6 flex justify-between items-center">
-        <div className="flex gap-6 items-center">
-          <span className="font-bold">Game: <span className={gameConnected !== 'Not Connected' ? 'text-green-400' : 'text-red-400'}>{gameConnected} {gameConnected !== 'Not Connected' ? '✅' : '❌'}</span></span>
-          <span>Session: <span className="text-blue-400">{telemetry.sessionType}</span></span>
-          <span>Lap: <span className="text-yellow-400">{telemetry.currentLapNum}/{telemetry.totalLaps}</span></span>
-          <span>Position: <span className="text-orange-400">P{telemetry.position}</span></span>
-          <span
-            className={`text-xs font-mono uppercase tracking-wide px-3 py-1 rounded-full border ${sessionPhaseHeader.className}`}
-          >
-            Phase: {sessionPhaseHeader.label}
-          </span>
-          <span
-            className={`text-xs font-mono uppercase tracking-wide px-3 py-1 rounded-full border ${formationPromptBadge.className}`}
-          >
-            {formationPromptBadge.label}
-          </span>
-          <span
-            className={`text-xs font-mono uppercase tracking-wide px-3 py-1 rounded-full border ${postRaceBadge.className}`}
-          >
-            {postRaceBadge.label}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-400">
-            Dev Mode - {isAC ? 'Complete AC Telemetry (191 Fields)' : 'Complete F1 24 Telemetry'}
-          </div>
-          <button
-            onClick={() => window.open(window.location.href, '_blank', 'width=1400,height=900')}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors px-2 py-1 rounded border border-gray-700 hover:border-gray-500"
-            title="Open in new window"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            New Window
-          </button>
-        </div>
-      </div>
+      {/* Header Bar + Session Phase Debug */}
+      <DevModeHeaderBar telemetry={telemetry} rawTelemetry={rawTelemetry} raceEvents={raceEvents} gameConnected={gameConnected} isAC={isAC} />
 
       {/* Main Grid */}
       <div className="grid grid-cols-4 gap-3">
-
-        <Card className="col-span-4 bg-indigo-950/60 border border-indigo-600/40 p-4">
-          <h3 className="text-sm font-bold text-indigo-300 mb-3">SESSION PHASE DEBUG</h3>
-          <div className="grid md:grid-cols-3 gap-3 text-xs text-indigo-100">
-            <div className="space-y-2">
-              <div>
-                <div className="text-[11px] uppercase tracking-wide text-indigo-400 mb-1">Derived Phase</div>
-                <div className="text-sm font-semibold text-indigo-200">{sessionPhaseDebug.phase}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wide text-indigo-400">Race Session</span>
-                <span className={sessionPhaseDebug.isRaceSession ? 'text-emerald-300 font-semibold' : 'text-slate-400'}>
-                  {sessionPhaseDebug.isRaceSession ? 'Yes' : 'No'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wide text-indigo-400">Formation Candidate</span>
-                <span className={sessionPhaseDebug.formationCandidate ? 'text-amber-300 font-semibold' : 'text-slate-400'}>
-                  {sessionPhaseDebug.formationCandidate ? 'True' : 'False'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wide text-indigo-400">Finish Candidate</span>
-                <span className={sessionPhaseDebug.finishCandidate ? 'text-rose-300 font-semibold' : 'text-slate-400'}>
-                  {sessionPhaseDebug.finishCandidate ? 'True' : 'False'}
-                </span>
-              </div>
-            </div>
-            {sessionPhaseSignalColumns.map((column, columnIndex) => (
-              <div key={`phase-signals-${columnIndex}`} className="space-y-1">
-                {column.map((signal) => (
-                  <div key={signal.label} className="flex justify-between gap-2 border border-indigo-800/30 rounded-lg px-3 py-2 bg-indigo-900/30">
-                    <span className="text-[10px] uppercase tracking-wide text-indigo-400">{signal.label}</span>
-                    <span className="font-mono text-indigo-100 text-right">{signal.value}</span>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Card>
 
         <DevModeAtlasLinkPanel />
 
@@ -1899,701 +1380,26 @@ export function DevModeDashboard() {
           </div>
         </Card>
 
+        {/* F1 Atlas AI Strategy */}
         {isF124 && atlasAI && (
-          <>
-            <Card className="bg-black/60 border border-gray-700 p-4 col-span-2">
-              <h3 className="text-sm font-bold text-cyan-400 mb-2">ATLAS AI | Fuel & Tyre Strategy</h3>
-              <div className="flex flex-wrap gap-2 mb-3 text-xs">
-                <span className={`px-2 py-0.5 rounded-full border ${fuelStatusStyle.className}`}>
-                  Fuel: {fuelStatusStyle.label}
-                </span>
-                <span className={`px-2 py-0.5 rounded-full border ${tyreStatusStyle.className}`}>
-                  Tyres: {tyreStatusStyle.label}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div className="col-span-2 text-xs uppercase tracking-wide text-gray-500">Fuel Outlook</div>
-                <div>
-                  Avg Burn:{' '}
-                  <span className={`font-mono ${fuelModelReady ? 'text-green-400' : 'text-gray-400'}`}>
-                    {displayFuelPerLap !== null ? `${displayFuelPerLap.toFixed(2)} kg/lap` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Laps Remaining:{' '}
-                  <span className={`font-mono ${
-                    displayFuelLapsRemaining === null
-                      ? 'text-gray-400'
-                      : displayFuelLapsRemaining < 5
-                        ? 'text-rose-300 font-semibold'
-                        : 'text-green-400'
-                  }`}>
-                    {displayFuelLapsRemaining !== null ? `${displayFuelLapsRemaining.toFixed(1)} laps` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Fuel Margin:{' '}
-                  <span className={`font-mono ${fuelMarginClass}`}>
-                    {displayFuelMargin !== null
-                      ? `${displayFuelMargin >= 0 ? '+' : ''}${displayFuelMargin.toFixed(2)} laps`
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Target Save:{' '}
-                  <span className={`font-mono ${
-                    displayFuelTargetSave !== null && displayFuelTargetSave > 0
-                      ? 'text-blue-300'
-                      : 'text-gray-400'
-                  }`}>
-                    {displayFuelTargetSave !== null && displayFuelTargetSave > 0
-                      ? `${displayFuelTargetSave.toFixed(3)} lap/lap (${(displayFuelTargetSave * 100).toFixed(1)}%)`
-                      : '-'}
-                  </span>
-                </div>
-                <div className="col-span-2 text-xs uppercase tracking-wide text-gray-500 pt-1">Tyre Outlook</div>
-                <div>
-                  Deg Rate:{' '}
-                  <span className={`font-mono ${tyreDegClass}`}>
-                    {displayTyreDegradation !== null
-                      ? displayTyreDegradation > 0
-                        ? `+${displayTyreDegradation.toFixed(2)}%/lap`
-                        : 'Stable'
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Remaining Life:{' '}
-                  <span className={`font-mono ${tyreLifeClass}`}>
-                    {displayTyreLifeRemaining === null || displayTyreLifeRemaining >= 900
-                      ? '-'
-                      : `${displayTyreLifeRemaining.toFixed(1)} laps`}
-                  </span>
-                </div>
-                <div>
-                  Performance:{' '}
-                  <span className={`font-mono ${displayTyrePerformance === null ? 'text-gray-400' : 'text-blue-300'}`}>
-                    {tyrePerformanceText}
-                  </span>
-                </div>
-                <div>
-                  Stint Progress:{' '}
-                  <span className={`font-mono ${tyreStintPercent === null ? 'text-gray-400' : 'text-blue-300'}`}>
-                    {tyreStintPercent === null ? '-' : `${tyreStintPercent}%`}
-                  </span>
-              </div>
-            </div>
-              {displayFuelMargin !== null && displayFuelMargin >= 0.3 && (
-                <div className="text-xs text-teal-200 mt-3">
-                  {`~${displayFuelMargin.toFixed(1)} laps in hand - free to push or stretch the stint.`}
-                </div>
-              )}
-              {displayFuelMargin !== null && displayFuelMargin < 0 && (
-                <div className="text-xs text-rose-300 mt-3">
-                  {`Short by ${Math.abs(displayFuelMargin).toFixed(1)} laps - start saving now.`}
-                </div>
-              )}
-              {!fuelModelReady && (
-                <div className="text-xs text-gray-500 mt-3">
-                  Fuel model warming up - start of lap 2 onward for accurate readings.
-                </div>
-              )}
-              {tyreCritical && (
-                <div className="text-rose-300 font-semibold mt-3">
-                  Tyres are in the critical window - expect rapid drop-off.
-                </div>
-              )}
-            </Card>
-
-            <Card className="bg-black/60 border border-gray-700 p-4 col-span-2">
-              <h3 className="text-sm font-bold text-cyan-400 mb-2">Pit Window & Metrics</h3>
-              <div className="flex flex-wrap gap-2 mb-3 text-xs">
-                <span className={`px-2 py-0.5 rounded-full border ${pitStatusStyle.className}`}>
-                  Pit: {pitStatusStyle.label}
-                </span>
-                <span className={`px-2 py-0.5 rounded-full border ${tyreStatusStyle.className}`}>
-                  Tyres: {tyreStatusStyle.label}
-                </span>
-                <span className={`px-2 py-0.5 rounded-full border ${fuelStatusStyle.className}`}>
-                  Fuel: {fuelStatusStyle.label}
-                </span>
-                {pitWindowBadge.label !== 'Monitoring' && (
-                  <span className={`px-2 py-0.5 rounded-full border font-mono text-[10px] ${pitWindowBadge.className}`}>
-                    {pitWindowBadge.label}
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div>
-                  Pit Delta:{' '}
-                  <span className="font-mono text-yellow-300">
-                    {pitDelta !== null ? `${pitDelta.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Delta (wing):{' '}
-                  <span className="font-mono text-orange-300">
-                    {pitDeltaWing !== null ? `${pitDeltaWing.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Net Δ Now:{' '}
-                  <span className={`font-mono ${pitNetClass}`}>
-                    {pitNetDelta !== null ? `${pitNetDelta >= 0 ? '+' : ''}${pitNetDelta.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Stay Out Cost:{' '}
-                  <span className={`font-mono ${stayOutClass}`}>
-                    {pitStayOutLoss !== null ? `${pitStayOutLoss >= 0 ? '+' : ''}${pitStayOutLoss.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Tyre Wear:{' '}
-                  <span className={`font-mono ${tyreWearSummary.className}`}>{tyreWearSummary.label}</span>
-                </div>
-                <div>
-                  Tyre Life:{' '}
-                  <span className={`font-mono ${tyreLifeClass}`}>
-                    {displayTyreLifeRemaining !== null
-                      ? `${displayTyreLifeRemaining.toFixed(1)} laps`
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Deg Rate:{' '}
-                  <span className={`font-mono ${tyreDegClass}`}>
-                    {displayTyreDegradation !== null
-                      ? `${displayTyreDegradation.toFixed(2)}%/lap`
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Tyre Performance:{' '}
-                  <span className="font-mono text-purple-300">{tyrePerformanceText}</span>
-                </div>
-                <div>
-                  Tyre Stint:{' '}
-                  <span className="font-mono text-blue-300">
-                    {tyreStintPercent === null ? '-' : `${tyreStintPercent}%`}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            <StrategyPanel
-              telemetry={telemetry}
-              multiCarData={multiCarData}
-              sessionPhase={strategyPanelSessionPhase}
-            />
-
-            <Card className="bg-black/60 border border-gray-700 p-4 col-span-2">
-              <h3 className="text-sm font-bold text-cyan-400 mb-2">Pit Stop Tracker</h3>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="space-y-1">
-                  <div>
-                    Stops:{' '}
-                    <span className="font-mono text-slate-200">
-                      {pitStopTracker.stopsCompleted}
-                    </span>
-                  </div>
-                  <div>
-                    Mandatory Stop:{' '}
-                    <span className={`font-mono ${pitStopMandatoryClass}`}>
-                      {pitStopMandatoryLabel}
-                    </span>
-                  </div>
-                  <div>
-                    Last Stop Lap:{' '}
-                    <span className="font-mono text-gray-300">
-                      {pitStopTracker.lastStopLap ?? '-'}
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div>
-                    Current:{' '}
-                    <span className="font-mono text-sky-200">
-                      {pitStopCurrentCompound}
-                    </span>
-                  </div>
-                  <div>
-                    Last:{' '}
-                    <span className="font-mono text-gray-300">
-                      {pitStopTracker.lastCompound ?? '-'}
-                    </span>
-                  </div>
-                  <div>
-                    Stint Laps:{' '}
-                    <span className="font-mono text-gray-300">
-                      {Number.isFinite(pitStopTracker.stintLaps)
-                        ? pitStopTracker.stintLaps
-                        : '-'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="bg-black/60 border border-gray-700 p-4 col-span-2">
-              <h3 className="text-sm font-bold text-cyan-400 mb-2">ATLAS AI | ERS Strategy</h3>
-              <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
-                <span className={`px-2 py-0.5 rounded-full border ${ersStatusStyle.className}`}>
-                  Mode: {ersAdvisor.mode.toUpperCase()}
-                </span>
-                <span className="font-mono text-blue-300">SOC {Math.round(ersAdvisor.soc)}%</span>
-                {ersAdvisor.hangarCallout && (
-                  <span className="px-2 py-0.5 rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200 uppercase tracking-wide text-[10px]">
-                    {ersAdvisor.hangarCallout}
-                  </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div>
-                  Attack Threshold:{' '}
-                  <span className={`font-mono ${ersAttackGap === null ? 'text-gray-500' : 'text-orange-300'}`}>
-                    {ersAttackGap !== null ? `${ersAttackGap.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Gap Ahead:{' '}
-                  <span className="font-mono text-gray-300">
-                    {primaryAhead && typeof primaryAhead.gapToPlayer === 'number'
-                      ? `${Math.abs(primaryAhead.gapToPlayer).toFixed(2)}s`
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Defend Threshold:{' '}
-                  <span className={`font-mono ${ersDefendGap === null ? 'text-gray-500' : 'text-emerald-300'}`}>
-                    {ersDefendGap !== null ? `${ersDefendGap.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Gap Behind:{' '}
-                  <span className="font-mono text-gray-300">
-                    {primaryBehind && typeof primaryBehind.gapToPlayer === 'number'
-                      ? `${Math.abs(primaryBehind.gapToPlayer).toFixed(2)}s`
-                      : '-'}
-                  </span>
-                </div>
-                <div>
-                  Harvest Window:{' '}
-                  <span className={`font-mono ${ersHarvestGap === null ? 'text-gray-500' : 'text-gray-300'}`}>
-                    {ersHarvestGap !== null ? `${ersHarvestGap.toFixed(1)}s` : '-'}
-                  </span>
-                </div>
-                <div>
-                  Next Target:{' '}
-                  <span className="font-mono text-gray-300">
-                    {ersAdvisor.budget.targetNext.toFixed(0)}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-3 text-xs text-gray-200 space-y-1">
-                <div className="text-[11px] uppercase text-gray-500">Guidance</div>
-                <div className="font-semibold">{ersAdvisor.message}</div>
-                <div className="text-gray-400 leading-snug">{ersAdvisor.detail}</div>
-              </div>
-
-              <div className="mt-3">
-                <div className="text-[11px] uppercase text-gray-500 mb-1">ERS Budget</div>
-                <div className="relative h-2 rounded bg-gray-700 overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 bg-sky-500/70"
-                    style={{ width: `${Math.max(0, Math.min(100, ersAdvisor.soc))}%` }}
-                  />
-                  <div
-                    className="absolute inset-y-0 w-0.5 bg-amber-300"
-                    style={{ left: `${Math.max(0, Math.min(100, ersAdvisor.budget.targetNow))}%` }}
-                  />
-                </div>
-                <div className="mt-1 font-mono text-[11px] text-gray-400">
-                  Now {ersAdvisor.soc.toFixed(0)}% · Target {ersAdvisor.budget.targetNow.toFixed(0)}% (Δ{' '}
-                  {ersAdvisor.budget.delta >= 0 ? '+' : ''}
-                  {ersAdvisor.budget.delta.toFixed(1)}%)
-                </div>
-                <div className="text-xs text-gray-300">{ersAdvisor.budget.summary}</div>
-              </div>
-
-              <div className="mt-3 text-xs text-gray-300 space-y-1">
-                <div className="text-[11px] uppercase text-gray-500">Callouts</div>
-                {ersAdvisor.callouts.length > 0 ? (
-                  ersAdvisor.callouts.map((callout, index) => (
-                    <div key={`${callout}-${index}`} className="text-gray-300 leading-snug">
-                      • {callout}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-gray-500">No urgent ERS items.</div>
-                )}
-              </div>
-            </Card>
-          </>
+          <DevModeF1Strategy
+            telemetry={telemetry}
+            rawTelemetry={rawTelemetry as any}
+            multiCarData={multiCarData}
+            atlasAI={atlasAI}
+            sessionPhase={strategyPanelSessionPhase}
+            pitStopTracker={pitStopTracker}
+            ersAdvisor={ersAdvisor}
+            aheadOpponent={primaryAhead}
+            behindOpponent={primaryBehind}
+          />
         )}
 
-        {/* Flags & Penalties - AC/F1 Adaptive */}
-        <Card className="bg-black/60 border border-gray-700 p-4">
-          <h3 className="text-sm font-bold text-gray-400 mb-2">{isAC ? 'FLAGS & TRACK LIMITS' : 'FLAGS & PENALTIES'}</h3>
-          <div className="space-y-1 text-sm">
-            {isAC && (
-              <>
-                <div>Flag: <span className={`font-mono ${
-                  (rawTelemetry as any)?.flag_type === 0 ? 'text-gray-400' :
-                  (rawTelemetry as any)?.flag_type === 1 ? 'text-blue-400 font-bold' :
-                  (rawTelemetry as any)?.flag_type === 2 ? 'text-yellow-400 font-bold' :
-                  (rawTelemetry as any)?.flag_type === 3 ? 'text-black font-bold bg-white px-1' :
-                  (rawTelemetry as any)?.flag_type === 4 ? 'text-white font-bold' :
-                  (rawTelemetry as any)?.flag_type === 5 ? 'text-white font-bold bg-black px-1' :
-                  (rawTelemetry as any)?.flag_type === 6 ? 'text-red-400 font-bold' :
-                  'text-gray-400'
-                }`}>{
-                  (rawTelemetry as any)?.flag_type === 0 ? 'NONE' :
-                  (rawTelemetry as any)?.flag_type === 1 ? 'BLUE FLAG' :
-                  (rawTelemetry as any)?.flag_type === 2 ? 'YELLOW FLAG' :
-                  (rawTelemetry as any)?.flag_type === 3 ? 'BLACK FLAG' :
-                  (rawTelemetry as any)?.flag_type === 4 ? 'WHITE FLAG' :
-                  (rawTelemetry as any)?.flag_type === 5 ? 'CHECKERED' :
-                  (rawTelemetry as any)?.flag_type === 6 ? 'PENALTY' :
-                  'UNKNOWN'
-                }</span></div>
-                <div>Penalties: <span className={`font-mono ${(rawTelemetry as any)?.penalties_enabled ? 'text-green-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.penalties_enabled ? 'ENABLED' : 'DISABLED'}</span></div>
-                <div>Penalty Time: <span className="text-red-400 font-mono">{((rawTelemetry as any)?.penalty_time)?.toFixed(1) || '0'}s</span></div>
-                <div>Tires Out: <span className={`font-mono ${(rawTelemetry as any)?.numberOfTyresOut >= 4 ? 'text-red-400 font-bold' : (rawTelemetry as any)?.numberOfTyresOut >= 2 ? 'text-yellow-400' : 'text-green-400'}`}>{(rawTelemetry as any)?.numberOfTyresOut || 0}/4</span></div>
-                {(rawTelemetry as any)?.numberOfTyresOut >= 4 && (
-                  <div className="text-red-400 font-bold">🚨 ALL TIRES OFF TRACK</div>
-                )}
-                <div>In Pit: <span className={`font-mono ${(rawTelemetry as any)?.is_in_pit ? 'text-blue-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.is_in_pit ? 'YES' : 'NO'}</span></div>
-                <div>In Pit Lane: <span className={`font-mono ${(rawTelemetry as any)?.is_in_pitlane ? 'text-yellow-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.is_in_pitlane ? 'YES' : 'NO'}</span></div>
-                <div>Mandatory Pit: <span className={`font-mono ${(rawTelemetry as any)?.mandatory_pit_done ? 'text-green-400' : 'text-red-400'}`}>{(rawTelemetry as any)?.mandatory_pit_done ? 'DONE' : 'NOT DONE'}</span></div>
-                <div>Lap Invalidated: <span className={`font-mono ${(rawTelemetry as any)?.lap_invalidated ? 'text-red-400 font-bold' : 'text-green-400'}`}>{(rawTelemetry as any)?.lap_invalidated ? 'YES' : 'NO'}</span></div>
-                {(rawTelemetry as any)?.lap_invalidated && (
-                  <div className="text-red-400 font-bold">⚠️ LAP TIME DELETED</div>
-                )}
-              </>
-            )}
-            {isF124 && (
-              <>
-                <div>Flag: <span className={`font-mono ${
-                  telemetry.flagType === 'Yellow' ? 'text-yellow-400 font-bold' :
-                  telemetry.flagType === 'Green' ? 'text-green-400' :
-                  telemetry.flagType === 'Blue' ? 'text-blue-400' :
-                  telemetry.flagType === 'Red' ? 'text-red-400 font-bold' :
-                  'text-gray-400'
-                }`}>{telemetry.flagType}</span></div>
-                <div>Track Limits: <span className="text-orange-400 font-mono">{telemetry.cornerCuttingWarnings}</span></div>
-                <div>Penalties: <span className="text-red-400 font-mono">{telemetry.penalties}s</span></div>
-                <div>Pen Count: <span className="text-red-300 font-mono">{(rawTelemetry as any)?.num_penalties || 0}</span></div>
-                {(rawTelemetry as any)?.penalties_time > 0 && (
-                  <div className="text-red-400 font-bold">🚨 DRIVE-THROUGH: {(rawTelemetry as any).penalties_time}s</div>
-                )}
-                {(rawTelemetry as any)?.lap_invalid && (
-                  <div className="text-orange-400 font-bold">❌ LAP INVALID</div>
-                )}
-                <div>Safety Car: <span className={`font-mono ${
-                  telemetry.safetyCarStatus === 'Full SC' ? 'text-red-400 font-bold' :
-                  telemetry.safetyCarStatus === 'VSC' ? 'text-yellow-400 font-bold' :
-                  'text-gray-400'
-                }`}>{telemetry.safetyCarStatus}</span></div>
-                <div>Pit Status: <span className={`font-mono ${
-                  telemetry.pitStatus === 'In Pit' ? 'text-blue-400' :
-                  telemetry.pitStatus === 'Pitting' ? 'text-yellow-400' :
-                  'text-gray-400'
-                }`}>{telemetry.pitStatus}</span></div>
-                {telemetry.pitWindowOpen && (
-                  <div className="text-green-400 font-bold">PIT WINDOW: L{telemetry.pitWindowIdealLap}-{telemetry.pitWindowLatestLap}</div>
-                )}
-              </>
-            )}
-          </div>
-        </Card>
+        {/* Flags, Weather, Car Settings, Damage, Marshals */}
+        <DevModeCarInfoPanels telemetry={telemetry} rawTelemetry={rawTelemetry as any} isF124={isF124} isAC={isAC} acExtended={acExtended} />
 
-        {/* Weather & Track - AC Enhanced */}
-        <Card className="bg-black/60 border border-gray-700 p-4">
-          <h3 className="text-sm font-bold text-gray-400 mb-2">{isAC ? 'ENVIRONMENT & TRACK' : 'WEATHER & TRACK'}</h3>
-          <div className="space-y-1 text-sm">
-            <div>Track: <span className="text-blue-400 font-mono">{telemetry.trackTemp}°C</span></div>
-            <div>Air: <span className="text-green-400 font-mono">{telemetry.airTemp}°C</span></div>
-            {isAC && (
-              <>
-                <div>Wind: <span className="text-cyan-400 font-mono">{((rawTelemetry as any)?.ac_extended?.wind_speed)?.toFixed(1) || '0'}km/h @ {((rawTelemetry as any)?.ac_extended?.wind_direction)?.toFixed(0) || '0'}°</span></div>
-                <div>Grip: <span className="text-orange-400 font-mono">{((rawTelemetry as any)?.ac_extended?.surface_grip * 100)?.toFixed(1) || '100.0'}%</span></div>
-                <div>Air Density: <span className="text-purple-400 font-mono">{((rawTelemetry as any)?.ac_extended?.air_density)?.toFixed(4) || '1.2250'}</span></div>
-                <div>Track Length: <span className="text-pink-400 font-mono">{((rawTelemetry as any)?.ac_extended?.track_spline_length / 1000)?.toFixed(2) || '0'}km</span></div>
-              </>
-            )}
-            {!isAC && (
-              <div>Weather: <span className="text-gray-400 font-mono">{telemetry.weather}</span></div>
-            )}
-            <div>Session: <span className="text-yellow-400 font-mono">
-              {(() => {
-                // For AC, we can't calculate elapsed time accurately without proper session start time
-                // So for now, just show remaining time
-                const formatTime = (seconds: number) => {
-                  if (isNaN(seconds) || seconds < 0) return '--:--';
-                  if (seconds >= 3600) {
-                    return `${Math.floor(seconds / 3600)}:${Math.floor((seconds % 3600) / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-                  }
-                  return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-                };
-
-                // For AC, we don't have reliable elapsed time, so just show remaining
-                const remaining = telemetry.sessionTimeLeft > 0 && telemetry.sessionTimeLeft < 999999 ?
-                  formatTime(telemetry.sessionTimeLeft) :
-                  '∞';
-
-                // For F1, we could calculate elapsed from session duration minus remaining
-                // But for AC, we don't have session duration, so just show remaining
-                return isAC ? `Remaining: ${remaining}` : formatTime(telemetry.sessionTimeLeft);
-              })()}
-            </span></div>
-            <div>Track Name: <span className="text-purple-400 text-xs">{telemetry.trackName || `Track ID: ${telemetry.trackId}`}</span></div>
-            {isAC && (
-              <>
-                <div>Car: <span className="text-green-300 text-xs">{(rawTelemetry as any)?.car_name || 'Unknown'}</span></div>
-                <div>Layout: <span className="text-blue-300 text-xs">{(rawTelemetry as any)?.track_configuration || 'Default'}</span></div>
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* Car Settings - AC Enhanced */}
-        <Card className="bg-black/60 border border-gray-700 p-4">
-          <h3 className="text-sm font-bold text-gray-400 mb-2">{isAC ? 'CAR SETTINGS & AIDS' : 'CAR SETTINGS'}</h3>
-          <div className="space-y-1 text-sm">
-            <div>
-              Brake Bias:{' '}
-              <span className="text-blue-400 font-mono">
-                {isAC
-                  ? `${acBrakeBias !== null ? acBrakeBias.toFixed(1) : fallbackBrakeBiasDisplay}%`
-                  : `${fallbackBrakeBiasDisplay}%`}
-              </span>
-            </div>
-            {isAC && (
-              <>
-                <div>
-                  TC1:{' '}
-                  <span className="text-yellow-400 font-mono">
-                    {formatDiscreteSetting(acTcPrimary, AC_TC_MAX)}
-                  </span>
-                </div>
-                <div>
-                  TC2:{' '}
-                  <span className="text-yellow-300 font-mono">
-                    {formatDiscreteSetting(acTcSecondary, AC_TC_MAX)}
-                  </span>
-                </div>
-                <div>
-                  ABS:{' '}
-                  <span className="text-red-400 font-mono">
-                    {formatDiscreteSetting(acAbsSetting, AC_ABS_MAX)}
-                  </span>
-                </div>
-                <div>
-                  Fuel Map:{' '}
-                  <span className="text-emerald-300 font-mono">
-                    {acFuelMapSetting !== null && acFuelMapMax
-                      ? `${Math.round(acFuelMapSetting)}/${Math.round(acFuelMapMax)}`
-                      : 'N/A (needs AtlasLink)'}
-                  </span>
-                </div>
-                <div>
-                  Engine Brake:{' '}
-                  <span className="text-orange-400 font-mono">
-                    {acEngineBrakeSetting !== null
-                      ? `${Math.round(acEngineBrakeSetting)}/13`
-                      : 'N/A'}
-                  </span>
-                </div>
-                <div>Auto Shift: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.auto_shifter_enabled ? 'text-green-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.auto_shifter_enabled ? 'ON' : 'OFF'}</span></div>
-                <div>Auto Clutch: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.aid_auto_clutch ? 'text-green-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.aid_auto_clutch ? 'ON' : 'OFF'}</span></div>
-                <div>Auto Blip: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.aid_auto_blip ? 'text-green-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.aid_auto_blip ? 'ON' : 'OFF'}</span> <span className="text-xs text-gray-500">(Rev-match)</span></div>
-                <div>Stability: <span className="text-purple-400 font-mono">{((rawTelemetry as any)?.ac_extended?.aid_stability !== undefined) ? ((rawTelemetry as any).ac_extended.aid_stability * 100).toFixed(0) : '0'}%</span> <span className="text-xs text-gray-500">(ESC)</span></div>
-                <div>Tire Blankets: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.aid_allow_tyre_blankets ? 'text-green-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.aid_allow_tyre_blankets ? 'ALLOWED' : 'NOT ALLOWED'}</span> <span className="text-xs text-gray-500">(Session setting)</span></div>
-                <div>Pit Limiter: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.pit_limiter_enabled ? 'text-blue-400 font-bold' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.pit_limiter_enabled ? 'ACTIVE' : 'OFF'}</span></div>
-                <div>Ideal Line: <span className={`font-mono ${(rawTelemetry as any)?.ac_extended?.ideal_line_enabled ? 'text-cyan-400' : 'text-gray-400'}`}>{(rawTelemetry as any)?.ac_extended?.ideal_line_enabled ? 'ON' : 'OFF'}</span></div>
-              </>
-            )}
-            {isF124 && (
-              <>
-                <div>Differential: <span className="text-yellow-400 font-mono">{telemetry.differential}%</span></div>
-                {telemetry.sessionType === 'Race' && telemetry.differential === 50 && (
-                  <div className="text-xs text-orange-400">⚠️ Diff locked (Parc Fermé)</div>
-                )}
-                <div className="text-xs text-gray-500 mt-2">
-                  Raw Diff Value: {(rawTelemetry as any).differential_on_throttle || 'N/A'}
-                </div>
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* Car Damage & Setup - UPDATED */}
-        {isF124 && (
-          <div className="grid grid-cols-2 gap-3">
-            <Card className="bg-black/60 border border-gray-700 p-4">
-              <h3 className="text-sm font-bold text-gray-400 mb-2">CAR DAMAGE</h3>
-              <div className="space-y-1 text-sm">
-                <div>Front L Wing: <span className={`font-mono ${telemetry.frontLeftWingDamage > 0 ? 'text-orange-400' : 'text-green-400'}`}>{telemetry.frontLeftWingDamage}%</span></div>
-                <div>Front R Wing: <span className={`font-mono ${telemetry.frontRightWingDamage > 0 ? 'text-orange-400' : 'text-green-400'}`}>{telemetry.frontRightWingDamage}%</span></div>
-                <div>Rear Wing: <span className={`font-mono ${telemetry.rearWingDamage > 0 ? 'text-orange-400' : 'text-green-400'}`}>{telemetry.rearWingDamage}%</span></div>
-                <div>Engine: <span className={`font-mono ${telemetry.engineDamage > 0 ? 'text-red-400' : 'text-green-400'}`}>{telemetry.engineDamage}%</span></div>
-                <div>Gearbox: <span className={`font-mono ${telemetry.gearboxDamage > 0 ? 'text-yellow-400' : 'text-green-400'}`}>{telemetry.gearboxDamage}%</span></div>
-                <div>Floor: <span className={`font-mono ${telemetry.floorDamage > 0 ? 'text-orange-400' : 'text-green-400'}`}>{telemetry.floorDamage}%</span></div>
-                <div>Diffuser: <span className={`font-mono ${telemetry.diffuserDamage > 0 ? 'text-orange-400' : 'text-green-400'}`}>{telemetry.diffuserDamage}%</span></div>
-              </div>
-              {/* Tyre Blisters (F1 25) */}
-              {(rawTelemetry as any)?.tyre_blisters && (
-                <>
-                  <div className="border-t border-gray-700 my-2" />
-                  <h4 className="text-xs font-bold text-pink-400 mb-1">TYRE BLISTERS</h4>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <div>FL: <span className={`font-mono ${((rawTelemetry as any).tyre_blisters[0] || 0) > 20 ? 'text-red-400' : ((rawTelemetry as any).tyre_blisters[0] || 0) > 10 ? 'text-orange-400' : 'text-green-400'}`}>{((rawTelemetry as any).tyre_blisters[0] || 0).toFixed(1)}%</span></div>
-                    <div>FR: <span className={`font-mono ${((rawTelemetry as any).tyre_blisters[1] || 0) > 20 ? 'text-red-400' : ((rawTelemetry as any).tyre_blisters[1] || 0) > 10 ? 'text-orange-400' : 'text-green-400'}`}>{((rawTelemetry as any).tyre_blisters[1] || 0).toFixed(1)}%</span></div>
-                    <div>RL: <span className={`font-mono ${((rawTelemetry as any).tyre_blisters[2] || 0) > 20 ? 'text-red-400' : ((rawTelemetry as any).tyre_blisters[2] || 0) > 10 ? 'text-orange-400' : 'text-green-400'}`}>{((rawTelemetry as any).tyre_blisters[2] || 0).toFixed(1)}%</span></div>
-                    <div>RR: <span className={`font-mono ${((rawTelemetry as any).tyre_blisters[3] || 0) > 20 ? 'text-red-400' : ((rawTelemetry as any).tyre_blisters[3] || 0) > 10 ? 'text-orange-400' : 'text-green-400'}`}>{((rawTelemetry as any).tyre_blisters[3] || 0).toFixed(1)}%</span></div>
-                  </div>
-                </>
-              )}
-            </Card>
-
-            <Card className="bg-black/60 border border-gray-700 p-4">
-              <h3 className="text-sm font-bold text-gray-400 mb-2">CAR SETUP</h3>
-              <div className="space-y-1 text-sm">
-                <div>Front Wing: <span className="text-blue-400 font-mono">{(rawTelemetry as any)?.front_wing_aero || 'N/A'}</span></div>
-                <div>Rear Wing: <span className="text-blue-400 font-mono">{(rawTelemetry as any)?.rear_wing_aero || 'N/A'}</span></div>
-                <div>Front Susp: <span className="text-green-400 font-mono">{(rawTelemetry as any)?.front_suspension || 'N/A'}</span></div>
-                <div>Rear Susp: <span className="text-green-400 font-mono">{(rawTelemetry as any)?.rear_suspension || 'N/A'}</span></div>
-                <div>Front ARB: <span className="text-orange-400 font-mono">{(rawTelemetry as any)?.front_anti_roll_bar || 'N/A'}</span></div>
-                <div>Rear ARB: <span className="text-orange-400 font-mono">{(rawTelemetry as any)?.rear_anti_roll_bar || 'N/A'}</span></div>
-                <div>Brake Bias: <span className="text-red-400 font-mono">{(rawTelemetry as any)?.f1_brake_bias || 'N/A'}%</span></div>
-                <div>Brake Press: <span className="text-red-300 font-mono">{(rawTelemetry as any)?.brake_pressure || 'N/A'}%</span></div>
-                <div>F Camber: <span className="text-yellow-400 font-mono">{(rawTelemetry as any)?.front_camber ? (rawTelemetry as any).front_camber.toFixed(2) : 'N/A'}°</span></div>
-                <div>R Camber: <span className="text-yellow-400 font-mono">{(rawTelemetry as any)?.rear_camber ? (rawTelemetry as any).rear_camber.toFixed(2) : 'N/A'}°</span></div>
-                <div>F Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.front_toe ? (rawTelemetry as any).front_toe.toFixed(3) : 'N/A'}°</span></div>
-                <div>R Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.rear_toe ? (rawTelemetry as any).rear_toe.toFixed(3) : 'N/A'}°</span></div>
-                <div>Diff On: <span className="text-purple-400 font-mono">{(rawTelemetry as any)?.differential_on_throttle || 'N/A'}%</span></div>
-                <div>Diff Off: <span className="text-purple-300 font-mono">{(rawTelemetry as any)?.differential_off_throttle || 'N/A'}%</span></div>
-                <div>F Ride H: <span className="text-pink-400 font-mono">{(rawTelemetry as any)?.front_ride_height || 'N/A'}</span></div>
-                <div>R Ride H: <span className="text-pink-400 font-mono">{(rawTelemetry as any)?.rear_ride_height || 'N/A'}</span></div>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Marshal Zones (F1 24 only) */}
-        {isF124 && telemetry.marshalZones.length > 0 && (
-          <Card className="bg-black/60 border border-gray-700 p-4">
-            <h3 className="text-sm font-bold text-gray-400 mb-2">MARSHAL ZONES</h3>
-            <div className="grid grid-cols-3 gap-1 text-xs">
-              {telemetry.marshalZones.slice(0, 15).map((flag, idx) => (
-                <div key={idx} className={`font-mono ${
-                  flag === 3 ? 'text-yellow-400 font-bold' :
-                  flag === 2 ? 'text-blue-400' :
-                  flag === 1 ? 'text-green-400' :
-                  flag === 4 ? 'text-red-400 font-bold' :
-                  'text-gray-600'
-                }`}>
-                  Z{idx + 1}: {flag === 0 ? '-' : flag === 1 ? 'G' : flag === 2 ? 'B' : flag === 3 ? 'Y' : flag === 4 ? 'R' : '?'}
-                </div>
-              ))}
-            </div>
-            {telemetry.marshalZones.some((f: number) => f === 3) && (
-              <div className="text-yellow-400 font-bold mt-2">⚠️ YELLOW FLAG ZONE ACTIVE</div>
-            )}
-          </Card>
-        )}
-
-        {/* Drivers Grid (only if multiCarData exists) */}
-        {multiCarData && multiCarData.cars && multiCarData.cars.length > 0 && (
-          <Card className="bg-black/60 border border-gray-700 p-4 col-span-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-bold text-gray-400">DRIVERS ON TRACK ({multiCarData.cars.length})</h3>
-              <button
-                onClick={() => setGapDisplayMode(gapDisplayMode === 'leader' ? 'interval' : 'leader')}
-                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-white text-xs transition-colors"
-              >
-                {gapDisplayMode === 'leader' ? 'Gap to Leader' : 'Interval'}
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {multiCarData.cars.slice(0, 20).map((car: any, idx: number) => {
-                // Find the fastest lap time among all cars
-                const fastestLapTime = Math.min(
-                  ...multiCarData.cars
-                    .filter((c: any) => c.best_lap_time && c.best_lap_time > 0)
-                    .map((c: any) => c.best_lap_time)
-                );
-
-                // Determine box styling - fastest lap takes priority over current driver
-                const isCurrentDriver = car.position === telemetry.position;
-                const hasFastestLap = car.best_lap_time > 0 && car.best_lap_time === fastestLapTime;
-
-                let boxClassName = 'p-2 rounded border ';
-                if (hasFastestLap) {
-                  boxClassName += 'border-purple-400 bg-purple-900/20 text-purple-400 font-bold';
-                } else if (isCurrentDriver) {
-                  boxClassName += 'border-green-400 bg-green-900/20 text-green-400 font-bold';
-                } else {
-                  boxClassName += 'border-gray-600';
-                }
-
-                // Calculate gap display based on mode
-                let gapDisplay = '';
-                if (gapDisplayMode === 'leader') {
-                  gapDisplay = car.gap_to_leader ? `+${car.gap_to_leader.toFixed(1)}s` : '';
-                } else {
-                  gapDisplay = car.gap_to_car_ahead ? `+${car.gap_to_car_ahead.toFixed(1)}s` : '';
-                }
-
-                return (
-                  <div key={idx} className={boxClassName}>
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold">
-                        P{car.position}: {(car.driver_name || `Car ${car.race_number}`).replace(/\0+$/g, '').replace(/0+$/g, '')}
-                        {hasFastestLap && isCurrentDriver && ' 👑🏆'}
-                        {hasFastestLap && !isCurrentDriver && ' 🏆'}
-                        {!hasFastestLap && isCurrentDriver && ' 👈'}
-                      </span>
-                      <span className="text-gray-400">
-                        {gapDisplay}
-                      </span>
-                    </div>
-                  <div className="flex justify-between items-center mt-1">
-                    <span className={`text-xs ${
-                      car.tire_compound ?
-                        car.tire_compound.includes('SOFT') ? 'text-red-400' :
-                        car.tire_compound.includes('MEDIUM') ? 'text-yellow-400' :
-                        car.tire_compound.includes('HARD') ? 'text-white' :
-                        car.tire_compound.includes('INTER') ? 'text-green-400' :
-                        car.tire_compound.includes('WET') ? 'text-blue-400' :
-                        'text-gray-400' : 'text-gray-400'
-                    }`}>
-                      🏎️ {car.tire_compound || 'UNKNOWN'} ({car.tyre_age || car.tire_age || 0}L)
-                    </span>
-                    <div className="flex gap-1">
-                      {(car.pit_status === 2 || car.pit_status === 'In Pit') && (
-                        <span className="text-blue-400 font-bold">🅿️</span>
-                      )}
-                      {(car.pit_status === 1 || car.pit_status === 'Pitting') && (
-                        <span className="text-yellow-400 font-bold">🏁</span>
-                      )}
-                      {car.penalties_time > 0 && (
-                        <span className="text-red-400 font-bold">🚨{car.penalties_time}s</span>
-                      )}
-                      {car.num_penalties > 0 && (
-                        <span className="text-orange-400">⚠️{car.num_penalties}</span>
-                      )}
-                    </div>
-                  </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        )}
+        {/* Drivers Grid */}
+        <DevModeDriversGrid multiCarData={multiCarData} telemetry={telemetry} />
 
         {/* AC Professional Telemetry Data */}
         {isAC && (
@@ -2799,74 +1605,9 @@ export function DevModeDashboard() {
           </div>
         )}
 
-        {/* Debug Info - Enhanced for AC */}
-        <Card className="bg-black/60 border border-gray-700 p-4 col-span-4">
-          <h3 className="text-sm font-bold text-gray-400 mb-2">DEBUG INFO - {isAC ? 'AC SHARED MEMORY DATA' : 'F1 24 PACKET DATA'}</h3>
-          <div className="grid grid-cols-4 gap-4 text-xs font-mono text-gray-500">
-            <div>Connected: {connectionStatus === 'connected' ? '✅' : '❌'}</div>
-            <div>Status: {connectionStatus}</div>
-            <div>Game: {gameConnected}</div>
-            <div>Session Type ID: {rawTelemetry?.session_type}</div>
-            <div>Track ID: {telemetry.trackId}</div>
-            <div>World Pos: X:{telemetry.worldPositionX.toFixed(1)} Y:{telemetry.worldPositionY.toFixed(1)}</div>
-            <div>Total Distance: {telemetry.totalDistance}m</div>
-
-            {isAC && (
-              <>
-                <div className="text-green-400">--- AC SHARED MEMORY STATUS ---</div>
-                <div>AC Version: {(rawTelemetry as any)?.ac_version || 'N/A'}</div>
-                <div>SM Version: {(rawTelemetry as any)?.sm_version || 'N/A'}</div>
-                <div>Player: {(rawTelemetry as any)?.player_name || 'N/A'} {(rawTelemetry as any)?.player_surname || ''}</div>
-                <div>Car Model: {(rawTelemetry as any)?.car_name || 'N/A'}</div>
-                <div>Track Config: {(rawTelemetry as any)?.track_configuration || 'Default'}</div>
-                <div>Car Skin: {(rawTelemetry as any)?.car_skin || 'N/A'}</div>
-                <div>Max Cars: {(rawTelemetry as any)?.num_cars || 'N/A'}</div>
-                <div>Sectors: {(rawTelemetry as any)?.sector_count || 'N/A'}</div>
-                <div>Physics PacketID: {(rawTelemetry as any)?.packet_id || 'N/A'}</div>
-                <div>Graphics PacketID: {(rawTelemetry as any)?.graphics_packet_id || 'N/A'}</div>
-                <div>AC Status: {(rawTelemetry as any)?.status === 2 ? 'LIVE' : (rawTelemetry as any)?.status === 1 ? 'REPLAY' : (rawTelemetry as any)?.status === 3 ? 'PAUSE' : 'OFF'}</div>
-                <div>Session: {(rawTelemetry as any)?.session_type === 0 ? 'PRACTICE' : (rawTelemetry as any)?.session_type === 1 ? 'QUALIFY' : (rawTelemetry as any)?.session_type === 2 ? 'RACE' : (rawTelemetry as any)?.session_type === 3 ? 'HOTLAP' : (rawTelemetry as any)?.session_type === 4 ? 'TIME ATTACK' : (rawTelemetry as any)?.session_type === 5 ? 'DRIFT' : (rawTelemetry as any)?.session_type === 6 ? 'DRAG' : 'UNKNOWN'}</div>
-                <div>Position on Spline: {((rawTelemetry as any)?.normalized_car_position * 100)?.toFixed(1) || '0'}%</div>
-                <div>Distance Traveled: {((rawTelemetry as any)?.distance_traveled / 1000)?.toFixed(2) || '0'}km</div>
-                <div>Replay Multiplier: {(rawTelemetry as any)?.replay_time_multiplier || '1.0'}x</div>
-                <div className="text-blue-400">--- AC CAR SPECIFICATIONS ---</div>
-                <div>Max Power: {(rawTelemetry as any)?.max_power || 'N/A'}hp</div>
-                <div>Max Torque: {(rawTelemetry as any)?.max_torque || 'N/A'}Nm</div>
-                <div>Max RPM: {(rawTelemetry as any)?.max_rpm || 'N/A'}</div>
-                <div>Max Turbo: {(rawTelemetry as any)?.max_turbo_boost || 'N/A'}</div>
-                <div>Engine Brake Settings: {(rawTelemetry as any)?.engine_brake_settings_count || 'N/A'}</div>
-                <div>ERS Controllers: {(rawTelemetry as any)?.ers_power_controller_count || 'N/A'}</div>
-                <div>Has DRS: {(rawTelemetry as any)?.has_drs ? 'YES' : 'NO'}</div>
-                <div>Has ERS: {(rawTelemetry as any)?.has_ers ? 'YES' : 'NO'}</div>
-                <div>Has KERS: {(rawTelemetry as any)?.has_kers ? 'YES' : 'NO'}</div>
-                <div>Pit Window: L{(rawTelemetry as any)?.pit_window_start || 'N/A'}-{(rawTelemetry as any)?.pit_window_end || 'N/A'}</div>
-                <div>Timed Race: {(rawTelemetry as any)?.is_timed_race ? 'YES' : 'NO'}</div>
-                <div>Extra Lap: {(rawTelemetry as any)?.has_extra_lap ? 'YES' : 'NO'}</div>
-              </>
-            )}
-
-            {isF124 && rawTelemetry && (
-              <>
-                <div className="text-orange-400">--- F1 24 Packet Data ---</div>
-                <div>Packet 1 (Session): {rawTelemetry.session_type !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 2 (Lap): {rawTelemetry.current_lap_time !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 3 (Event): {(rawTelemetry as any).last_event_code ? '✅' : '❌'}</div>
-                <div>Packet 5 (Setup): {(rawTelemetry as any).differential_on_throttle !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 6 (Telemetry): {rawTelemetry.speed_kph !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 7 (Status): {rawTelemetry.fuel_in_tank !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 10 (Damage): {(rawTelemetry as any).front_left_wing_damage !== undefined ? '✅' : '❌'}</div>
-                <div>Packet 12 (Tyre Sets): {(rawTelemetry as any).tyre_sets_available !== undefined ? '✅' : '❌'}</div>
-              </>
-            )}
-
-            <div>Last Update: {new Date().toLocaleTimeString()}</div>
-            <div className="text-purple-400">Total Fields: {isAC ? '191' : '80+'}</div>
-          </div>
-        </Card>
+        {/* Debug Info */}
+        <DevModeDebugPanel telemetry={telemetry} rawTelemetry={rawTelemetry as any} connectionStatus={connectionStatus} gameConnected={gameConnected} isF124={isF124} isAC={isAC} />
       </div>
     </div>
   );
 }
-
-
-

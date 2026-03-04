@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ArrowRight, Gauge, Trophy, Code, Radio, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { SetupGuide } from './SetupGuide';
 
 type DashboardId =
   | 'f1-pro'
@@ -102,12 +103,14 @@ interface DashboardSelectionProps {
   onDashboardSelect: (dashboardId: DashboardId) => void;
   connectionStatus: ConnectionStatus;
   connectedGameName?: string | null;
+  onRetryConnection?: () => void;
 }
 
 export function DashboardSelection({
   onDashboardSelect,
   connectionStatus,
   connectedGameName,
+  onRetryConnection,
 }: DashboardSelectionProps) {
   const { profile, user, signOut } = useAuth();
 
@@ -258,6 +261,15 @@ export function DashboardSelection({
       </div>
 
       <div className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
+        {/* First-run setup guide */}
+        <div className="mb-8">
+          <SetupGuide
+            connectionStatus={connectionStatus}
+            connectedGameName={connectedGameName}
+            onRetryConnection={onRetryConnection}
+          />
+        </div>
+
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h2 className="text-2xl mb-2 text-foreground">Available Dashboards</h2>
