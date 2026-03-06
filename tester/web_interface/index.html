@@ -823,20 +823,38 @@
 
                     const actions = document.createElement('div');
                     actions.className = 'session-actions';
+                    const exportBtn = document.createElement('button');
+                    exportBtn.className = 'btn-small';
+                    exportBtn.textContent = '💾';
+                    exportBtn.title = 'Export / Download';
                     const renameBtn = document.createElement('button');
                     renameBtn.className = 'btn-small';
                     renameBtn.textContent = '✏️';
+                    renameBtn.title = 'Rename';
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'btn-small btn-danger';
                     deleteBtn.textContent = '🗑️';
-                    actions.append(renameBtn, deleteBtn);
+                    deleteBtn.title = 'Delete';
+                    actions.append(exportBtn, renameBtn, deleteBtn);
 
                     item.append(info, actions);
                     fragment.appendChild(item);
 
                     item.addEventListener('click', (event) => {
-                        if (event.target === renameBtn || event.target === deleteBtn) return;
+                        if (event.target === exportBtn || event.target === renameBtn || event.target === deleteBtn) return;
                         this.selectSession(session, item);
+                    });
+
+                    exportBtn.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const url = `/api/session/download?filepath=${encodeURIComponent(session.filepath)}`;
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = session.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        this.log(`Exporting ${session.filename}`, 'info');
                     });
 
                     renameBtn.addEventListener('click', (event) => {

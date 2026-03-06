@@ -204,6 +204,8 @@ class TestingSuiteHandler(SimpleHTTPRequestHandler):
                 self.handle_sessions_list()
             elif parsed_path.path == '/api/record/status':
                 self.handle_record_status()
+            elif parsed_path.path == '/api/session/download':
+                self.handle_session_download()
             else:
                 self.send_error(404, "API endpoint not found")
         else:
@@ -668,6 +670,46 @@ class TestingSuiteHandler(SimpleHTTPRequestHandler):
         except Exception as exc:
             self.send_error(500, f"Failed to rename session: {exc}")
     
+    def handle_session_download(self):
+        """Stream a session file to the client for download."""
+        try:
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            filepath = params.get('filepath', [None])[0]
+
+            if not filepath:
+                self.send_error(400, "filepath query parameter required")
+                return
+
+            abs_path = Path(filepath).resolve()
+            if not abs_path.exists() or not abs_path.is_file():
+                self.send_error(404, "File not found")
+                return
+
+            if not is_allowed_session_path(abs_path):
+                self.send_error(403, "Access denied")
+                return
+
+            file_size = abs_path.stat().st_size
+            content_type = 'application/octet-stream'
+
+            self.send_response(200)
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Disposition', f'attachment; filename="{abs_path.name}"')
+            self.send_header('Content-Length', str(file_size))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+
+            with open(abs_path, 'rb') as f:
+                while True:
+                    chunk = f.read(65536)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+
+        except Exception as exc:
+            self.send_error(500, f"Failed to download session: {exc}")
+
     def handle_status_request(self):
         """Get system status"""
         global replayer_process, replayer_control_path, current_replay_game
