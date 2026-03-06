@@ -1,13 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import supabase from '../lib/supabaseClient';
+import { createContext, useContext, useMemo } from 'react';
 
 export interface UserProfile {
   id: string;
@@ -19,81 +10,18 @@ export interface UserProfile {
 }
 
 interface AuthContextValue {
-  user: User | null;
-  session: Session | null;
-  profile: UserProfile | null;
-  loading: boolean;
-  rememberMe: boolean;
-  setRememberMe: (value: boolean) => void;
-  signInWithPassword: (email: string, password: string) => Promise<{ error?: string }>;
-  signUpWithPassword: (email: string, password: string) => Promise<{ error?: string }>;
-  signInWithGoogle: () => Promise<{ error?: string }>;
-  signOut: () => Promise<void>;
+  user: { id: string; email: string };
+  session: { user: { id: string; email: string } };
+  profile: UserProfile;
+  loading: false;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const standaloneUser = {
+  id: 'standalone-user',
+  email: 'driver@atlasracing.local',
+};
 
-const REMEMBER_ME_KEY = 'atlas-remember-me';
-
-async function fetchUserProfile(userId: string): Promise<UserProfile | null> {
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) {
-    console.warn('[Auth] Failed to load profile:', error.message);
-    return null;
-  }
-
-  return (data as UserProfile | null) ?? null;
-}
-
-async function upsertProfile(user: User): Promise<void> {
-  const candidateUsername =
-    (user.user_metadata?.username as string | undefined) ??
-    user.email?.split('@')[0] ??
-    null;
-
-  const { error } = await supabase.from('user_profiles').upsert(
-    {
-      id: user.id,
-      email: user.email,
-      username: candidateUsername
-    },
-    { onConflict: 'id' }
-  );
-
-  if (error) {
-    console.warn('[Auth] Failed to upsert profile:', error.message);
-  }
-}
-
-// Check if Supabase is configured (has real credentials, not placeholders)
-const isSupabaseConfigured = (() => {
-  const url = process.env.REACT_APP_SUPABASE_URL;
-  const key = process.env.REACT_APP_SUPABASE_ANON_KEY;
-  return !!(url && key && !url.includes('your_') && !key.includes('your_'));
-})();
-
-// Mock session for standalone mode (no Supabase)
-const STANDALONE_SESSION = {
-  access_token: 'standalone',
-  refresh_token: 'standalone',
-  expires_in: 999999,
-  token_type: 'bearer',
-  user: {
-    id: 'standalone-user',
-    email: 'driver@atlasracing.local',
-    app_metadata: {},
-    user_metadata: { username: 'Driver' },
-    aud: 'authenticated',
-    created_at: new Date().toISOString(),
-  },
-} as unknown as Session;
-
-const STANDALONE_PROFILE: UserProfile = {
+const standaloneProfile: UserProfile = {
   id: 'standalone-user',
   email: 'driver@atlasracing.local',
   username: 'Driver',
@@ -102,212 +30,17 @@ const STANDALONE_PROFILE: UserProfile = {
   app_version_access: null,
 };
 
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(
-    isSupabaseConfigured ? null : STANDALONE_SESSION
-  );
-  const [user, setUser] = useState<User | null>(
-    isSupabaseConfigured ? null : (STANDALONE_SESSION.user as unknown as User)
-  );
-  const [profile, setProfile] = useState<UserProfile | null>(
-    isSupabaseConfigured ? null : STANDALONE_PROFILE
-  );
-  const [loading, setLoading] = useState(isSupabaseConfigured);
-  const [rememberMe, setRememberMeState] = useState<boolean>(() => {
-    const stored = localStorage.getItem(REMEMBER_ME_KEY);
-    if (stored === null) return true;
-    return stored === 'true';
-  });
-
-  useEffect(() => {
-    localStorage.setItem(REMEMBER_ME_KEY, rememberMe ? 'true' : 'false');
-  }, [rememberMe]);
-
-  useEffect(() => {
-    // Skip Supabase auth entirely in standalone mode
-    if (!isSupabaseConfigured) {
-      return;
-    }
-
-    let isMounted = true;
-
-    const loadProfile = async (nextUser: User) => {
-      if (!isMounted) {
-        return;
-      }
-
-      try {
-        await upsertProfile(nextUser);
-        const loadedProfile = await fetchUserProfile(nextUser.id);
-        if (isMounted) {
-          setProfile(loadedProfile);
-        }
-      } catch (profileError) {
-        console.warn('[Auth] Profile load failed', profileError);
-        if (isMounted) {
-          setProfile(null);
-        }
-      }
-    };
-
-    const applySession = (nextSession: Session | null) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
-
-      if (nextSession?.user) {
-        setProfile((current) => current ?? null);
-        void loadProfile(nextSession.user);
-      } else {
-        setProfile(null);
-      }
-    };
-
-    const initialise = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!isMounted) return;
-
-        applySession(data.session ?? null);
-      } catch (error) {
-        console.warn('[Auth] Failed to fetch session', error);
-        if (isMounted) {
-          applySession(null);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initialise();
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!isMounted) return;
-
-      applySession(newSession ?? null);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const setRememberMe = useCallback((value: boolean) => {
-    setRememberMeState(value);
-  }, []);
-
-  const signInWithPassword = useCallback(
-    async (email: string, password: string) => {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        return { error: error.message };
-      }
-
-      if (data.user) {
-        try {
-          await upsertProfile(data.user);
-          setProfile(await fetchUserProfile(data.user.id));
-        } catch (profileError) {
-          console.warn('[Auth] Failed to refresh profile after password sign-in', profileError);
-        }
-      }
-
-      return {};
-    },
-    []
-  );
-
-  const signUpWithPassword = useCallback(
-    async (email: string, password: string) => {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: 'https://yligdiorizqcapugvqph.supabase.co/auth/v1/callback'
-        }
-      });
-
-      if (error) {
-        return { error: error.message };
-      }
-
-      if (data.user) {
-        try {
-          await upsertProfile(data.user);
-          setProfile(await fetchUserProfile(data.user.id));
-        } catch (profileError) {
-          console.warn('[Auth] Failed to refresh profile after sign-up', profileError);
-        }
-      }
-
-      return {};
-    },
-    []
-  );
-
-  const signInWithGoogle = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: 'https://yligdiorizqcapugvqph.supabase.co/auth/v1/callback',
-        scopes: 'profile email'
-      }
-    });
-
-    if (error) {
-      return { error: error.message };
-    }
-
-    return {};
-  }, []);
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-
-    if (!rememberMe) {
-      try {
-        localStorage.removeItem('supabase.auth.token');
-        sessionStorage.removeItem('supabase.auth.token');
-      } catch (error) {
-        console.warn('[Auth] Failed to clear session storage', error);
-      }
-    }
-  }, [rememberMe]);
-
   const value = useMemo<AuthContextValue>(
     () => ({
-      user,
-      session,
-      profile,
-      loading,
-      rememberMe,
-      setRememberMe,
-      signInWithPassword,
-      signUpWithPassword,
-      signInWithGoogle,
-      signOut
+      user: standaloneUser,
+      session: { user: standaloneUser },
+      profile: standaloneProfile,
+      loading: false as const,
     }),
-    [
-      user,
-      session,
-      profile,
-      loading,
-      rememberMe,
-      setRememberMe,
-      signInWithPassword,
-      signUpWithPassword,
-      signInWithGoogle,
-      signOut
-    ]
+    []
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

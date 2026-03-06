@@ -322,8 +322,8 @@ const DevModeCarInfoPanels: React.FC<DevModeCarInfoPanelsProps> = ({
               <div>Brake Press: <span className="text-red-300 font-mono">{(rawTelemetry as any)?.brake_pressure || 'N/A'}%</span></div>
               <div>F Camber: <span className="text-yellow-400 font-mono">{(rawTelemetry as any)?.front_camber ? (rawTelemetry as any).front_camber.toFixed(2) : 'N/A'}°</span></div>
               <div>R Camber: <span className="text-yellow-400 font-mono">{(rawTelemetry as any)?.rear_camber ? (rawTelemetry as any).rear_camber.toFixed(2) : 'N/A'}°</span></div>
-              <div>F Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.front_toe ? (rawTelemetry as any).front_toe.toFixed(3) : 'N/A'}°</span></div>
-              <div>R Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.rear_toe ? (rawTelemetry as any).rear_toe.toFixed(3) : 'N/A'}°</span></div>
+              <div>F Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.front_toe != null && Math.abs((rawTelemetry as any).front_toe) < 100 ? (rawTelemetry as any).front_toe.toFixed(3) : 'N/A'}°</span></div>
+              <div>R Toe: <span className="text-cyan-400 font-mono">{(rawTelemetry as any)?.rear_toe != null && Math.abs((rawTelemetry as any).rear_toe) < 100 ? (rawTelemetry as any).rear_toe.toFixed(3) : 'N/A'}°</span></div>
               <div>Diff On: <span className="text-purple-400 font-mono">{(rawTelemetry as any)?.differential_on_throttle || 'N/A'}%</span></div>
               <div>Diff Off: <span className="text-purple-300 font-mono">{(rawTelemetry as any)?.differential_off_throttle || 'N/A'}%</span></div>
               <div>F Ride H: <span className="text-pink-400 font-mono">{(rawTelemetry as any)?.front_ride_height || 'N/A'}</span></div>

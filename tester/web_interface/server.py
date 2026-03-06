@@ -26,10 +26,20 @@ RECORDINGS_DIR = TESTER_ROOT / "recordings"
 
 # Map game id to expected executable name and file extension
 # Only F1 25 is supported for research data collection
+import platform
+
+_EXE = ".exe" if platform.system() == "Windows" else ""
+
 GAME_CONFIG = {
+    "f124": {
+        "recorder": f"packet_recorder{_EXE}",
+        "replayer": f"packet_replayer{_EXE}",
+        "extension": ".f124",
+        "transport": "udp"
+    },
     "f125": {
-        "recorder": "packet_recorder_f125.exe",
-        "replayer": "packet_replayer_f125.exe",
+        "recorder": f"packet_recorder_f125{_EXE}",
+        "replayer": f"packet_replayer_f125{_EXE}",
         "extension": ".f125",
         "transport": "udp"
     },
@@ -833,10 +843,10 @@ def main():
     print("=======================================")
     print()
     
-    # Check if build exists
-    if not os.path.exists('../build/bin'):
-        print("[ERROR] Build directory not found!")
-        print("Please run build.bat first to compile the recorder and replayer.")
+    if not BUILD_BIN_DIR.exists():
+        print(f"[ERROR] Build directory not found at {BUILD_BIN_DIR}")
+        print("Please build the tester tools first:")
+        print("  cd tester && mkdir build && cd build && cmake .. && make")
         return 1
     
     # Start HTTP server

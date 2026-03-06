@@ -17,6 +17,12 @@
 #ifdef _WIN32
 #include "games/ac/ac_parser.cpp"
 #endif
+#ifdef WINDOWS_ACC_SUPPORT
+#include "games/acc/acc_parser.cpp"
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+#include "games/ats/ats_parser.cpp"
+#endif
 
 #pragma pack(push, 1)
 struct LiveryColour_F125 {
@@ -429,9 +435,15 @@ private:
     // F1 24 components
     UDPReceiver udp_receiver;
     
-    // AC components
+    // Game-specific parsers (Windows shared memory)
 #ifdef _WIN32
     std::unique_ptr<AC_Parser> ac_parser;
+#endif
+#ifdef WINDOWS_ACC_SUPPORT
+    std::unique_ptr<ACC_Parser> acc_parser;
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+    std::unique_ptr<ATS_Parser> ats_parser;
 #endif
     
     // Shared components
@@ -444,7 +456,9 @@ private:
     enum ActiveGame {
         GAME_NONE,
         GAME_F1_24,
-        GAME_AC
+        GAME_AC,
+        GAME_ACC,
+        GAME_ATS
     };
     
     ActiveGame current_game;
@@ -454,6 +468,12 @@ public:
     UnifiedTelemetryServer() : running(false), current_game(GAME_NONE) {
 #ifdef _WIN32
         ac_parser = std::make_unique<AC_Parser>();
+#endif
+#ifdef WINDOWS_ACC_SUPPORT
+        acc_parser = std::make_unique<ACC_Parser>();
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+        ats_parser = std::make_unique<ATS_Parser>();
 #endif
     }
     
@@ -522,6 +542,40 @@ public:
         }
 #endif
         
+#ifdef WINDOWS_ACC_SUPPORT
+        bool acc_process_running = acc_parser && acc_parser->isGameRunning();
+        if (show_debug) {
+            std::cout << "ACC Process (ACC.exe): " << (acc_process_running ? "✓ RUNNING" : "✗ NOT FOUND") << std::endl;
+        }
+        if (acc_process_running) {
+            bool acc_connected = acc_parser->isConnected();
+            if (acc_connected || acc_parser->initialize()) {
+                if (current_game != GAME_ACC) {
+                    std::cout << "✅ Successfully detected and connected to Assetto Corsa Competizione!" << std::endl;
+                    current_game = GAME_ACC;
+                }
+                return GAME_ACC;
+            }
+        }
+#endif
+
+#ifdef WINDOWS_ATS_SUPPORT
+        bool ats_process_running = ats_parser && ats_parser->isGameRunning();
+        if (show_debug) {
+            std::cout << "ATS Process (amtrucks.exe): " << (ats_process_running ? "✓ RUNNING" : "✗ NOT FOUND") << std::endl;
+        }
+        if (ats_process_running) {
+            bool ats_connected = ats_parser->isConnected();
+            if (ats_connected || ats_parser->initialize()) {
+                if (current_game != GAME_ATS) {
+                    std::cout << "✅ Successfully detected and connected to American Truck Simulator!" << std::endl;
+                    current_game = GAME_ATS;
+                }
+                return GAME_ATS;
+            }
+        }
+#endif
+
         // F1 24 detection happens passively in the main loop via UDP reception
         // Don't change current_game here - let UDP reception detect F1 24
         
@@ -532,11 +586,17 @@ public:
         running = true;
         std::cout << "Starting unified telemetry processing loop..." << std::endl;
         std::cout << "Supported games:" << std::endl;
-        std::cout << "- F1 24/25 (UDP port 20777)" << std::endl;
+        std::cout << "  - F1 24/25 (UDP port 20777)" << std::endl;
 #ifdef _WIN32
-        std::cout << "- Assetto Corsa (Shared Memory)" << std::endl;
+        std::cout << "  - Assetto Corsa (Shared Memory)" << std::endl;
 #endif
-        std::cout << "- WebSocket server on port 8080" << std::endl;
+#ifdef WINDOWS_ACC_SUPPORT
+        std::cout << "  - Assetto Corsa Competizione (Shared Memory)" << std::endl;
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+        std::cout << "  - American Truck Simulator (Shared Memory)" << std::endl;
+#endif
+        std::cout << "SSE server on port 8080" << std::endl;
         std::cout << "Scanning for active games..." << std::endl;
         
         char udp_buffer[2048];
@@ -547,25 +607,53 @@ public:
             
             if (detected_game == GAME_AC) {
 #ifdef _WIN32
-                // Process AC telemetry
                 if (ac_parser && ac_parser->isConnected()) {
                     auto telemetry = ac_parser->readTelemetry();
-                    
                     if (telemetry.timestamp_ms > 0) {
-                        // Broadcast AC telemetry using same data processor
                         std::string json_data = data_processor.toJSON(telemetry);
                         ws_server.broadcastTelemetry(json_data);
-                        
-                        // Log occasionally
                         static int ac_log_counter = 0;
-                        if (++ac_log_counter % 60 == 0) { // Every ~1 second
+                        if (++ac_log_counter % 60 == 0) {
                             std::cout << "AC: Speed=" << telemetry.speed_kph << " km/h, RPM=" << telemetry.rpm 
                                       << ", Gear=" << (int)telemetry.gear << ", Lap=" << (int)telemetry.current_lap_num << std::endl;
                         }
                     }
                 }
 #endif
-            } else {
+            }
+#ifdef WINDOWS_ACC_SUPPORT
+            else if (detected_game == GAME_ACC) {
+                if (acc_parser && acc_parser->isConnected()) {
+                    auto telemetry = acc_parser->readTelemetry();
+                    if (telemetry.timestamp_ms > 0) {
+                        std::string json_data = data_processor.toJSON(telemetry);
+                        ws_server.broadcastTelemetry(json_data);
+                        static int acc_log_counter = 0;
+                        if (++acc_log_counter % 60 == 0) {
+                            std::cout << "ACC: Speed=" << telemetry.speed_kph << " km/h, RPM=" << telemetry.rpm 
+                                      << ", Gear=" << (int)telemetry.gear << ", Lap=" << (int)telemetry.current_lap_num << std::endl;
+                        }
+                    }
+                }
+            }
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+            else if (detected_game == GAME_ATS) {
+                if (ats_parser && ats_parser->isConnected()) {
+                    auto telemetry = ats_parser->readTelemetry();
+                    if (telemetry.timestamp_ms > 0) {
+                        std::string json_data = data_processor.toJSON(telemetry);
+                        ws_server.broadcastTelemetry(json_data);
+                        static int ats_log_counter = 0;
+                        if (++ats_log_counter % 60 == 0) {
+                            std::cout << "ATS: Speed=" << telemetry.speed_kph << " km/h, RPM=" << telemetry.rpm 
+                                      << ", Gear=" << (int)telemetry.gear << std::endl;
+                        }
+                    }
+                }
+            }
+#endif
+            else {
                 // Try to receive F1 24/25 UDP data
                 int bytes_received = udp_receiver.receivePacket(udp_buffer);
 
@@ -1298,9 +1386,13 @@ public:
         ws_server.stop();
         
 #ifdef _WIN32
-        if (ac_parser) {
-            ac_parser->cleanup();
-        }
+        if (ac_parser) { ac_parser->cleanup(); }
+#endif
+#ifdef WINDOWS_ACC_SUPPORT
+        if (acc_parser) { acc_parser->cleanup(); }
+#endif
+#ifdef WINDOWS_ATS_SUPPORT
+        if (ats_parser) { ats_parser->cleanup(); }
 #endif
         
         std::cout << "Unified telemetry server stopped." << std::endl;
@@ -1311,8 +1403,10 @@ public:
         std::cout << "Current game: ";
         switch (current_game) {
             case GAME_NONE: std::cout << "None (scanning...)" << std::endl; break;
-            case GAME_F1_24: std::cout << "F1 24 (UDP)" << std::endl; break;
+            case GAME_F1_24: std::cout << "F1 24/25 (UDP)" << std::endl; break;
             case GAME_AC: std::cout << "Assetto Corsa (Shared Memory)" << std::endl; break;
+            case GAME_ACC: std::cout << "ACC (Shared Memory)" << std::endl; break;
+            case GAME_ATS: std::cout << "American Truck Simulator (Shared Memory)" << std::endl; break;
         }
         std::cout << "WebSocket server: Running on port 8080" << std::endl;
         std::cout << "===================================\n" << std::endl;
@@ -1343,7 +1437,7 @@ int main() {
     server->printStatus();
     
     std::cout << "Atlas Racing Multi-Game Telemetry Server running..." << std::endl;
-    std::cout << "Ready to receive telemetry from F1 24 and Assetto Corsa" << std::endl;
+    std::cout << "Ready to receive telemetry from F1, AC, ACC, and ATS" << std::endl;
     std::cout << "Press Ctrl+C to stop" << std::endl;
     
     server->run();

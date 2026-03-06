@@ -8,6 +8,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <iphlpapi.h>
 #undef close
 #define close closesocket
 typedef int socklen_t;
@@ -18,9 +19,46 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <ifaddrs.h>
 #endif
 
 namespace {
+
+std::string getLocalIPAddress() {
+#ifdef _WIN32
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) == 0) {
+        struct addrinfo hints{}, *result = nullptr;
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_DGRAM;
+        if (getaddrinfo(hostname, nullptr, &hints, &result) == 0 && result) {
+            char ip[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &((struct sockaddr_in*)result->ai_addr)->sin_addr, ip, sizeof(ip));
+            freeaddrinfo(result);
+            std::string addr(ip);
+            if (addr != "127.0.0.1") return addr;
+        }
+        if (result) freeaddrinfo(result);
+    }
+#else
+    struct ifaddrs *ifaddr, *ifa;
+    if (getifaddrs(&ifaddr) == 0) {
+        for (ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+            if (!ifa->ifa_addr || ifa->ifa_addr->sa_family != AF_INET) continue;
+            char ip[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &((struct sockaddr_in*)ifa->ifa_addr)->sin_addr, ip, sizeof(ip));
+            std::string addr(ip);
+            if (addr != "127.0.0.1") {
+                freeifaddrs(ifaddr);
+                return addr;
+            }
+        }
+        freeifaddrs(ifaddr);
+    }
+#endif
+    return "127.0.0.1";
+}
+
 bool setSocketNonBlocking(int fd) {
 #ifdef _WIN32
     u_long mode = 1;
@@ -302,6 +340,21 @@ void WebSocketServer::handleNewConnection(int client_fd) {
             }
             std::cout << "New SSE events client connected" << std::endl;
             return; // Keep connection open for streaming
+        }
+
+        // API info endpoint for QR code pairing
+        if (request.find("GET /api/info") != std::string::npos) {
+            std::string ip = getLocalIPAddress();
+            std::string body = "{\"ip\":\"" + ip + "\",\"port\":" + std::to_string(WS_PORT) + ",\"version\":\"2.0.0\",\"name\":\"Atlas Racing\"}";
+            std::string response =
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: " + std::to_string(body.length()) + "\r\n"
+                "\r\n" + body;
+            send(client_fd, response.c_str(), response.length(), 0);
+            close(client_fd);
+            return;
         }
 
         // State sync SSE endpoint

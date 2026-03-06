@@ -1,16 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowRight, Gauge, Trophy, Code, Radio, LogOut } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { ArrowRight, Gauge, Trophy, Code, Radio, LayoutGrid, Smartphone } from 'lucide-react';
 import { SetupGuide } from './SetupGuide';
+import { QRCodePanel } from './QRCodePanel';
 
 type DashboardId =
   | 'f1-pro'
   | 'gt-endurance'
   | 'live-analysis'
   | 'dev-mode'
-  | 'gp-race-board';
+  | 'gp-race-board'
+  | 'dashboard-builder'
+  | 'minimal-hud';
 
 interface DashboardOption {
   id: DashboardId;
@@ -95,6 +97,37 @@ const dashboards: DashboardOption[] = [
     status: 'beta',
     category: 'f1',
   },
+  {
+    id: 'minimal-hud',
+    name: 'Minimal HUD',
+    description:
+      'Compact heads-up display designed for phone landscape as a second screen. Glanceable essentials only.',
+    features: [
+      'Position, gear, speed, delta',
+      'Tyre wear strip',
+      'Phone-landscape optimized (800x360)',
+      'Zero clutter — peripheral vision friendly',
+    ],
+    icon: <Smartphone className="w-6 h-6" />,
+    status: 'new',
+    category: 'gt',
+  },
+  {
+    id: 'dashboard-builder',
+    name: 'Dashboard Builder',
+    description:
+      'Build your own dashboard with drag-and-drop widgets. Save, load, and share custom layouts.',
+    features: [
+      'Drag & drop widget placement',
+      '18+ telemetry widgets',
+      'Save & load layouts',
+      'Undo/Redo support',
+      'Grid-based responsive design',
+    ],
+    icon: <LayoutGrid className="w-6 h-6" />,
+    status: 'new',
+    category: 'dev',
+  },
 ];
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -112,8 +145,6 @@ export function DashboardSelection({
   connectedGameName,
   onRetryConnection,
 }: DashboardSelectionProps) {
-  const { profile, user, signOut } = useAuth();
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'stable':
@@ -152,12 +183,6 @@ export function DashboardSelection({
         return 'bg-slate-700/50 text-slate-200 border border-slate-600/50';
     }
   })();
-
-  const displayName =
-    profile?.username ||
-    profile?.email ||
-    user?.email ||
-    'Driver';
 
   const renderDashboardCards = (dashboardList: typeof dashboards) => (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -240,27 +265,17 @@ export function DashboardSelection({
                   {connectionLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-                  Welcome {displayName}
-                </span>
-                {user?.id !== 'standalone-user' && (
-                  <Button
-                    onClick={() => signOut().catch(() => undefined)}
-                    variant="outline"
-                    className="flex items-center gap-2 bg-card/50 hover:bg-card/80"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </Button>
-                )}
-              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
+        {/* QR code for connecting other devices */}
+        <div className="mb-8">
+          <QRCodePanel />
+        </div>
+
         {/* First-run setup guide */}
         <div className="mb-8">
           <SetupGuide

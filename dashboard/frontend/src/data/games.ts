@@ -34,21 +34,23 @@ export const games: Game[] = [
     name: 'ATS',
     fullName: 'American Truck Simulator',
     description: 'Professional trucking telemetry and route planning dashboard',
-    available: false,
-    comingSoon: true,
+    available: true,
+    version: '1.0.0',
     icon: '/images/ats.jpg',
-    status: 'Coming Soon',
+    status: 'Available',
     backgroundImage: '/images/ats.png',
     color: 'from-blue-600 to-blue-800',
     setupInstructions: [
       'Launch American Truck Simulator',
-      'Enable telemetry in game settings',
-      'Configure SCS telemetry SDK',
-      'Start a delivery job'
+      'Atlas Core reads telemetry via shared memory automatically',
+      'No additional game configuration needed',
+      'Start driving — data flows immediately'
     ],
     connectionInfo: {
-      protocol: 'HTTP',
-      port: 25555
+      protocol: 'Shared Memory',
+      port: null,
+      format: 'SCS Telemetry SDK',
+      sendRate: 'Real-time'
     }
   },
   {
@@ -80,22 +82,24 @@ export const games: Game[] = [
     id: 'acc',
     name: 'ACC',
     fullName: 'Assetto Corsa Competizione',
-    description: 'GT racing telemetry with advanced setup analysis',
-    available: false,
-    comingSoon: true,
+    description: 'GT racing telemetry with advanced setup analysis and strategy',
+    available: true,
+    version: '1.0.0',
     icon: '/images/acc.png',
-    status: 'Coming Soon',
+    status: 'Available',
     backgroundImage: '/images/acc.png',
     color: 'from-purple-600 to-purple-800',
     setupInstructions: [
       'Launch Assetto Corsa Competizione',
-      'Enable broadcasting in settings',
-      'Configure connection parameters',
-      'Start a session'
+      'Atlas Core reads telemetry via shared memory automatically',
+      'No additional game configuration needed',
+      'Start a Practice, Qualifying, or Race session'
     ],
     connectionInfo: {
-      protocol: 'UDP',
-      port: 9996
+      protocol: 'Shared Memory',
+      port: null,
+      format: 'ACC Native',
+      sendRate: 'Real-time'
     }
   }
 ];

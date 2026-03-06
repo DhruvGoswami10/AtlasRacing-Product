@@ -59,38 +59,19 @@ set_target_properties(packet_replayer_f125 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-# Assetto Corsa shared memory replayer
-add_executable(packet_replayer_ac
-    packet_replayer_ac.cpp
-    ../shared/ac_types.h
-)
+# AC and ACC replayers require Windows shared memory
+if(WIN32)
+    add_executable(packet_replayer_ac
+        packet_replayer_ac.cpp
+        ../shared/ac_types.h
+    )
+    target_link_libraries(packet_replayer_ac ${PLATFORM_LIBS})
+    target_include_directories(packet_replayer_ac PRIVATE ../recorder ../shared)
+    target_compile_options(packet_replayer_ac PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>)
+    set_target_properties(packet_replayer_ac PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-target_link_libraries(packet_replayer_ac ${PLATFORM_LIBS})
-target_include_directories(packet_replayer_ac PRIVATE ../recorder ../shared)
-
-if(MSVC)
-    target_compile_options(packet_replayer_ac PRIVATE /W4)
-else()
-    target_compile_options(packet_replayer_ac PRIVATE -Wall -Wextra -pedantic)
+    add_executable(packet_replayer_acc packet_replayer_acc.cpp)
+    target_link_libraries(packet_replayer_acc ${PLATFORM_LIBS})
+    target_compile_options(packet_replayer_acc PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>)
+    set_target_properties(packet_replayer_acc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
-
-set_target_properties(packet_replayer_ac PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
-
-# Assetto Corsa Competizione replayer
-add_executable(packet_replayer_acc
-    packet_replayer_acc.cpp
-)
-
-target_link_libraries(packet_replayer_acc ${PLATFORM_LIBS})
-
-if(MSVC)
-    target_compile_options(packet_replayer_acc PRIVATE /W4)
-else()
-    target_compile_options(packet_replayer_acc PRIVATE -Wall -Wextra -pedantic)
-endif()
-
-set_target_properties(packet_replayer_acc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)

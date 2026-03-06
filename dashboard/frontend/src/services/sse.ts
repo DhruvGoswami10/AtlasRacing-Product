@@ -6,7 +6,7 @@ export class TelemetrySSE {
   private eventSource: EventSource | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 10;
+  private maxReconnectAttempts = Infinity;
   private eventIdCounter = 0;
   
   private onDataCallback?: (data: TelemetryData) => void;
@@ -21,7 +21,18 @@ export class TelemetrySSE {
   constructor(
     private url: string = 'http://localhost:8080/telemetry',
     private reconnectDelay: number = 2000
-  ) {}
+  ) {
+    // Reconnect immediately when the user returns to the tab/app
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && this.eventSource?.readyState !== EventSource.OPEN) {
+          this.reconnectAttempts = 0;
+          if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+          this.connect().catch(() => {});
+        }
+      });
+    }
+  }
   
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -47,17 +58,21 @@ export class TelemetrySSE {
           this.handleMessage(event.data);
         };
         
-        this.eventSource.onerror = (error) => {
-          console.error('SSE error:', error);
-          this.onStatusCallback?.('error');
+        this.eventSource.onerror = () => {
+          if (DEBUG_TELEMETRY) {
+            console.debug('[SSE] Connection error — backend may not be running. Retrying...');
+          }
+          this.onStatusCallback?.('disconnected');
           this.scheduleReconnect();
         };
         
-        // Connection timeout
+        // Connection timeout — resolve silently so the app doesn't crash
         setTimeout(() => {
           if (this.eventSource?.readyState !== EventSource.OPEN) {
             this.eventSource?.close();
-            reject(new Error('SSE connection timeout'));
+            this.onStatusCallback?.('disconnected');
+            this.scheduleReconnect();
+            resolve();
           }
         }, 5000);
         
@@ -158,7 +173,9 @@ export class TelemetrySSE {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectTimer = setTimeout(() => {
         this.reconnectAttempts++;
-        console.log(`Attempting to reconnect SSE (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+        if (DEBUG_TELEMETRY) {
+          console.debug(`[SSE] Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}...`);
+        }
         
         // Clean up existing connection before reconnecting
         if (this.eventSource) {
@@ -170,9 +187,6 @@ export class TelemetrySSE {
           // Connection failed, will retry on next cycle
         });
       }, this.reconnectDelay * Math.min(this.reconnectAttempts + 1, 5)); // Exponential backoff up to 5x
-    } else {
-      console.error('Max SSE reconnection attempts reached');
-      this.onStatusCallback?.('disconnected');
     }
   }
   

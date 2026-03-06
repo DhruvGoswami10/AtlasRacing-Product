@@ -420,6 +420,7 @@
                             <label for="gameSelect">Game</label>
                             <select id="gameSelect">
                                 <option value="f125" selected>F1 25 (UDP)</option>
+                                <option value="f124">F1 24 (UDP)</option>
                             </select>
                         </div>
                         <div>
@@ -434,6 +435,10 @@
                         <div class="recorder-buttons">
                             <button class="btn" id="startRecordBtn">Start Recording</button>
                             <button class="btn btn-danger" id="stopRecordBtn" disabled>Stop</button>
+                        </div>
+                        <div style="font-size:0.72em;color:var(--warning);line-height:1.4;">
+                            ⚠️ Stop the Atlas Racing backend before recording — both use port 20777.
+                            Start the backend again when replaying.
                         </div>
                     </div>
                     <div id="recordingStatusPanel" class="recording-status">
@@ -451,9 +456,9 @@
                         <div class="upload-area" id="sessionUpload">
                             <div class="upload-icon">📦</div>
                             <div style="font-weight:600;">Import Recording</div>
-                            <div style="font-size:0.8em;color:var(--muted);">Drop or click to add .f125 files</div>
+                            <div style="font-size:0.8em;color:var(--muted);">Drop or click to add .f124 / .f125 files</div>
                         </div>
-                        <input type="file" id="sessionFileInput" accept=".f125" style="display:none;">
+                        <input type="file" id="sessionFileInput" accept=".f124,.f125" style="display:none;">
                     </div>
                     <div id="sessionList" class="session-list">
                         <div style="padding:20px;text-align:center;color:var(--muted);font-size:0.85em;">
@@ -501,6 +506,7 @@
 
     <script>
         const GAME_LABELS = {
+            f124: 'F1 24',
             f125: 'F1 25'
         };
         const SHARED_MEMORY_GAMES = new Set(); // F1 25 uses UDP, no shared memory games

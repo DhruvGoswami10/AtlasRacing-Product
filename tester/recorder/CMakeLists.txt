@@ -55,38 +55,19 @@ set_target_properties(packet_recorder_f125 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
-# Assetto Corsa shared memory recorder
-add_executable(packet_recorder_ac
-    packet_recorder_ac.cpp
-    ../shared/ac_types.h
-)
+# AC and ACC recorders require Windows shared memory
+if(WIN32)
+    add_executable(packet_recorder_ac
+        packet_recorder_ac.cpp
+        ../shared/ac_types.h
+    )
+    target_link_libraries(packet_recorder_ac ${PLATFORM_LIBS})
+    target_include_directories(packet_recorder_ac PRIVATE ../shared)
+    target_compile_options(packet_recorder_ac PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>)
+    set_target_properties(packet_recorder_ac PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-target_link_libraries(packet_recorder_ac ${PLATFORM_LIBS})
-target_include_directories(packet_recorder_ac PRIVATE ../shared)
-
-if(MSVC)
-    target_compile_options(packet_recorder_ac PRIVATE /W4)
-else()
-    target_compile_options(packet_recorder_ac PRIVATE -Wall -Wextra -pedantic)
+    add_executable(packet_recorder_acc packet_recorder_acc.cpp)
+    target_link_libraries(packet_recorder_acc ${PLATFORM_LIBS})
+    target_compile_options(packet_recorder_acc PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>)
+    set_target_properties(packet_recorder_acc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
-
-set_target_properties(packet_recorder_ac PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
-
-# Assetto Corsa Competizione recorder (shared memory blobs)
-add_executable(packet_recorder_acc
-    packet_recorder_acc.cpp
-)
-
-target_link_libraries(packet_recorder_acc ${PLATFORM_LIBS})
-
-if(MSVC)
-    target_compile_options(packet_recorder_acc PRIVATE /W4)
-else()
-    target_compile_options(packet_recorder_acc PRIVATE -Wall -Wextra -pedantic)
-endif()
-
-set_target_properties(packet_recorder_acc PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)

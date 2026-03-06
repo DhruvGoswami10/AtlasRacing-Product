@@ -55,9 +55,9 @@ export function DevModeDriversGrid({ multiCarData, telemetry }: Props) {
               <div className="flex justify-between items-center">
                 <span className="font-bold">
                   P{car.position}: {(car.driver_name || `Car ${car.race_number}`).replace(/\0+$/g, '').replace(/0+$/g, '')}
-                  {hasFastestLap && isCurrentDriver && ' \uD83D\uDC51\uD83C\uDFC6'}
-                  {hasFastestLap && !isCurrentDriver && ' \uD83C\uDFC6'}
-                  {!hasFastestLap && isCurrentDriver && ' \uD83D\uDC48'}
+                  {hasFastestLap && isCurrentDriver && ' 👑🏆'}
+                  {hasFastestLap && !isCurrentDriver && ' 🏆'}
+                  {!hasFastestLap && isCurrentDriver && ' 👈'}
                 </span>
                 <span className="text-gray-400">{gapDisplay}</span>
               </div>
@@ -71,20 +71,20 @@ export function DevModeDriversGrid({ multiCarData, telemetry }: Props) {
                     car.tire_compound.includes('WET') ? 'text-blue-400' :
                     'text-gray-400' : 'text-gray-400'
                 }`}>
-                  \uD83C\uDFCE\uFE0F {car.tire_compound || 'UNKNOWN'} ({car.tyre_age || car.tire_age || 0}L)
+                  🏎️ {car.tire_compound || 'UNKNOWN'} ({car.tyre_age || car.tire_age || 0}L)
                 </span>
                 <div className="flex gap-1">
                   {(car.pit_status === 2 || car.pit_status === 'In Pit') && (
-                    <span className="text-blue-400 font-bold">\uD83C\uDD7F\uFE0F</span>
+                    <span className="text-blue-400 font-bold">🅿️</span>
                   )}
                   {(car.pit_status === 1 || car.pit_status === 'Pitting') && (
-                    <span className="text-yellow-400 font-bold">\uD83C\uDFC1</span>
+                    <span className="text-yellow-400 font-bold">🏁</span>
                   )}
                   {car.penalties_time > 0 && (
-                    <span className="text-red-400 font-bold">\uD83D\uDEA8{car.penalties_time}s</span>
+                    <span className="text-red-400 font-bold">🚨{car.penalties_time}s</span>
                   )}
                   {car.num_penalties > 0 && (
-                    <span className="text-orange-400">\u26A0\uFE0F{car.num_penalties}</span>
+                    <span className="text-orange-400">⚠️{car.num_penalties}</span>
                   )}
                 </div>
               </div>

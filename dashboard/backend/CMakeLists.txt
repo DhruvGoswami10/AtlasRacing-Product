@@ -30,6 +30,9 @@ if(NOT JsonCpp_INCLUDE_DIRS OR NOT JsonCpp_LIBRARIES)
 else()
     message(STATUS "Found JsonCpp: ${JsonCpp_LIBRARIES}")
     include_directories(${JsonCpp_INCLUDE_DIRS})
+    if(JsonCpp_LIBRARY_DIRS)
+        link_directories(${JsonCpp_LIBRARY_DIRS})
+    endif()
 endif()
 
 # Include directories
@@ -48,14 +51,22 @@ set(SOURCES
     src/f1_24/f1_24_parser.cpp
 )
 
-# Windows-specific AC sources
+# Windows-specific game parser sources (shared memory based)
 if(WIN32)
     set(AC_SOURCES
         src/games/ac/ac_shared_memory.cpp
         src/games/ac/ac_parser.cpp
     )
-    list(APPEND SOURCES ${AC_SOURCES})
-    add_definitions(-DWINDOWS_AC_SUPPORT)
+    set(ACC_SOURCES
+        src/games/acc/acc_shared_memory.cpp
+        src/games/acc/acc_parser.cpp
+    )
+    set(ATS_SOURCES
+        src/games/ats/ats_shared_memory.cpp
+        src/games/ats/ats_parser.cpp
+    )
+    list(APPEND SOURCES ${AC_SOURCES} ${ACC_SOURCES} ${ATS_SOURCES})
+    add_definitions(-DWINDOWS_AC_SUPPORT -DWINDOWS_ACC_SUPPORT -DWINDOWS_ATS_SUPPORT)
     add_definitions(-DUNICODE -D_UNICODE)  # Unicode support for wide chars
 endif()
 

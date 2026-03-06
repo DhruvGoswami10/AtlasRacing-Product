@@ -1,24 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
-import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import { F1ProDashboard } from './components/F1ProDashboard';
 import { GTEnduranceDashboard } from './components/GTEnduranceDashboard';
 import { DevModeDashboard } from './components/DevModeDashboard';
 import { GPRaceBoard } from './components/GPRaceBoard';
 import { LiveRaceAnalysis } from './components/LiveRaceAnalysis';
+import { DashboardBuilder } from './components/DashboardBuilder';
+import { MinimalHUD } from './components/MinimalHUD';
 import { DashboardSelection } from './components/DashboardSelection';
 import { Button } from './components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useTelemetry } from './hooks/useTelemetry';
 import { useAuth } from './context/AuthContext';
-import { AuthScreen } from './components/auth/AuthScreen';
 
 type DashboardId =
   | 'f1-pro'
   | 'gt-endurance'
   | 'live-analysis'
   | 'dev-mode'
-  | 'gp-race-board';
+  | 'gp-race-board'
+  | 'dashboard-builder'
+  | 'minimal-hud';
 type ViewType = 'dashboard-selection' | 'dashboard';
 
 // Main App content component (used inside HashRouter)
@@ -28,7 +31,7 @@ function AppContent() {
   const location = useLocation();
 
   const { telemetry, connectionStatus, connect, retry } = useTelemetry();
-  const { session, loading } = useAuth();
+  const { loading } = useAuth();
 
   useEffect(() => {
     if (connectionStatus === 'disconnected') {
@@ -50,6 +53,8 @@ function AppContent() {
       'live-analysis',
       'dev-mode',
       'gp-race-board',
+      'dashboard-builder',
+      'minimal-hud',
     ];
 
     const dispose = api.onSwitchDashboard((dashboardId: string) => {
@@ -128,10 +133,6 @@ function AppContent() {
     );
   }
 
-  if (!session) {
-    return <AuthScreen />;
-  }
-
   return (
     <div className="dark min-h-screen bg-background">
       {/* Fixed back button - always visible regardless of scroll/zoom */}
@@ -159,13 +160,20 @@ function AppContent() {
         )}
 
         {view === 'dashboard' && selectedDashboard && (
-          <div className="relative h-screen overflow-auto bg-background">
-            {selectedDashboard === 'gt-endurance' && <GTEnduranceDashboard />}
-            {selectedDashboard === 'f1-pro' && <F1ProDashboard />}
-            {selectedDashboard === 'live-analysis' && <LiveRaceAnalysis />}
-            {selectedDashboard === 'dev-mode' && <DevModeDashboard />}
-            {selectedDashboard === 'gp-race-board' && <GPRaceBoard />}
-          </div>
+          <>
+            {selectedDashboard === 'dashboard-builder' ? (
+              <DashboardBuilder />
+            ) : (
+              <div className="relative h-screen overflow-auto bg-background">
+                {selectedDashboard === 'gt-endurance' && <GTEnduranceDashboard />}
+                {selectedDashboard === 'f1-pro' && <F1ProDashboard />}
+                {selectedDashboard === 'live-analysis' && <LiveRaceAnalysis />}
+                {selectedDashboard === 'dev-mode' && <DevModeDashboard />}
+                {selectedDashboard === 'gp-race-board' && <GPRaceBoard />}
+                {selectedDashboard === 'minimal-hud' && <MinimalHUD />}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
