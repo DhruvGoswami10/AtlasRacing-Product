@@ -1,9 +1,11 @@
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowRight, Gauge, Trophy, Code, Radio, LayoutGrid, Smartphone } from 'lucide-react';
+import { ArrowRight, Gauge, Trophy, Code, Radio, LayoutGrid, Smartphone, Settings, RefreshCw } from 'lucide-react';
 import { SetupGuide } from './SetupGuide';
 import { QRCodePanel } from './QRCodePanel';
+import { getStoredBackendHost, setBackendHost, clearBackendHost } from '../services/sse';
 
 type DashboardId =
   | 'f1-pro'
@@ -139,12 +141,69 @@ interface DashboardSelectionProps {
   onRetryConnection?: () => void;
 }
 
+function openDashboardPopup(dashboardId: DashboardId) {
+  const w = window.screen.availWidth;
+  const h = window.screen.availHeight;
+  window.open(
+    `${window.location.pathname}#/dashboard/${dashboardId}`,
+    `atlas-${dashboardId}`,
+    `popup,width=${w},height=${h},left=0,top=0,menubar=no,toolbar=no,location=no,status=no`,
+  );
+}
+
 export function DashboardSelection({
   onDashboardSelect,
   connectionStatus,
   connectedGameName,
   onRetryConnection,
 }: DashboardSelectionProps) {
+  const [showConnectionSettings, setShowConnectionSettings] = useState(false);
+  const [manualHost, setManualHost] = useState('');
+  const [discoveredHosts, setDiscoveredHosts] = useState<Array<{ ip: string; ssePort: number; game: string }>>([]);
+  const currentHost = getStoredBackendHost() || window.location.hostname;
+
+  const fetchDiscovery = useCallback(() => {
+    const preferredHost = getStoredBackendHost() || window.location.hostname;
+    const hosts = preferredHost === window.location.hostname
+      ? [preferredHost]
+      : [preferredHost, window.location.hostname];
+
+    const tryHost = (index: number) => {
+      if (index >= hosts.length) {
+        setDiscoveredHosts([]);
+        return;
+      }
+
+      fetch(`http://${hosts[index]}:8080/api/discover`)
+        .then((r) => {
+          if (!r.ok) {
+            throw new Error(`Discovery failed on ${hosts[index]}`);
+          }
+          return r.json();
+        })
+        .then((data) => setDiscoveredHosts(Array.isArray(data.instances) ? data.instances : []))
+        .catch(() => tryHost(index + 1));
+    };
+
+    tryHost(0);
+  }, []);
+
+  useEffect(() => {
+    fetchDiscovery();
+    const interval = setInterval(fetchDiscovery, 5000);
+    return () => clearInterval(interval);
+  }, [fetchDiscovery]);
+
+  const handleConnect = (host: string) => {
+    setBackendHost(host);
+    window.location.reload();
+  };
+
+  const handleReset = () => {
+    clearBackendHost();
+    window.location.reload();
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'stable':
@@ -232,7 +291,7 @@ export function DashboardSelection({
             </div>
 
             <Button
-              onClick={() => onDashboardSelect(dashboard.id)}
+              onClick={() => openDashboardPopup(dashboard.id)}
               className="w-full group/btn h-12 text-base mt-6"
               variant="default"
             >
@@ -274,6 +333,87 @@ export function DashboardSelection({
         {/* QR code for connecting other devices */}
         <div className="mb-8">
           <QRCodePanel />
+        </div>
+
+        {/* Backend connection settings */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between rounded-lg border border-border/40 bg-card/60 backdrop-blur-sm px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-emerald-400' : 'bg-slate-500'}`} />
+              <span className="text-sm text-muted-foreground">
+                Backend: <span className="text-foreground font-mono">{currentHost}</span>
+              </span>
+              {discoveredHosts.length > 0 && !showConnectionSettings && (
+                <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/20">
+                  {discoveredHosts.length} remote {discoveredHosts.length === 1 ? 'source' : 'sources'} found
+                </Badge>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => setShowConnectionSettings(!showConnectionSettings)}
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {showConnectionSettings && (
+            <Card className="mt-2 border-border/40 bg-card/60">
+              <CardContent className="p-4 space-y-4">
+                {discoveredHosts.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Discovered Atlas Core Instances</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {discoveredHosts.map((h, i) => (
+                        <Button
+                          key={i}
+                          variant="outline"
+                          size="sm"
+                          className="font-mono"
+                          onClick={() => handleConnect(h.ip)}
+                        >
+                          {h.ip}{h.game ? ` (${h.game})` : ''}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-2">Manual Connection</h4>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={manualHost}
+                      onChange={e => setManualHost(e.target.value)}
+                      placeholder="e.g. 192.168.1.100"
+                      className="flex-1 px-3 py-1.5 rounded-md border border-border bg-background text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      onKeyDown={e => { if (e.key === 'Enter' && manualHost.trim()) handleConnect(manualHost.trim()); }}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={!manualHost.trim()}
+                      onClick={() => handleConnect(manualHost.trim())}
+                    >
+                      Connect
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                  <Button variant="ghost" size="sm" onClick={fetchDiscovery} className="text-muted-foreground">
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Refresh
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={handleReset} className="text-muted-foreground">
+                    Reset to auto-detect
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* First-run setup guide */}

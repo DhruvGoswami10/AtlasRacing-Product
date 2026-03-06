@@ -16,11 +16,11 @@ C:\msys64\usr\bin\bash.exe -lc "pacman -S --noconfirm mingw-w64-x86_64-toolchain
 
 echo.
 echo Step 3: Testing the build environment...
-C:\msys64\usr\bin\bash.exe -lc "export MSYSTEM=MINGW64 && cd '/c/Users/ASUS/OneDrive/Documents/atlas racing/atlas racing/dashboard' && echo 'Current directory:' && pwd && echo 'Testing tools:' && which gcc && which g++ && which cmake && which ninja"
+C:\msys64\usr\bin\bash.exe -lc "export MSYSTEM=MINGW64 && cd '/c/Users/ASUS/OneDrive/Documents/atlas racing/dashboard' && echo 'Current directory:' && pwd && echo 'Testing tools:' && which gcc && which g++ && which cmake && which ninja"
 
 echo.
 echo Step 4: Building the Atlas Racing backend...
-C:\msys64\usr\bin\bash.exe -lc "export MSYSTEM=MINGW64 && cd '/c/Users/ASUS/OneDrive/Documents/atlas racing/atlas racing/dashboard' && rm -rf backend/build && mkdir -p backend/build && cd backend/build && cmake .. -G Ninja && ninja"
+C:\msys64\usr\bin\bash.exe -lc "export MSYSTEM=MINGW64 && cd '/c/Users/ASUS/OneDrive/Documents/atlas racing/dashboard' && rm -rf backend/build && mkdir -p backend/build && cd backend/build && cmake .. -G Ninja && ninja"
 
 echo.
 echo ========================================

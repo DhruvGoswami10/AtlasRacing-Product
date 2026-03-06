@@ -97,12 +97,16 @@ bool WebSocketServer::start() {
 #endif
     
     running = true;
-    
+
     // Start server thread
     std::thread server_thread(&WebSocketServer::serverLoop, this);
     server_thread.detach();
+
+    // Start discovery listener for Atlas Core instances
+    std::thread discovery_thread(&WebSocketServer::discoveryListenerThread, this);
+    discovery_thread.detach();
     
-    std::cout << "✓ HTTP/WebSocket server started on port " << WS_PORT << std::endl;
+    std::cout << "[INFO] HTTP/WebSocket server started on port " << WS_PORT << std::endl;
     return true;
 }
 
@@ -342,6 +346,38 @@ void WebSocketServer::handleNewConnection(int client_fd) {
             return; // Keep connection open for streaming
         }
 
+        // Discovery endpoint: returns Atlas Core instances found on the network
+        if (request.find("GET /api/discover") != std::string::npos) {
+            std::string body = "{\"instances\":[";
+            {
+                std::lock_guard<std::mutex> lock(discovery_mutex);
+                auto now = std::chrono::steady_clock::now();
+                bool first = true;
+                for (auto it = discovered_instances.begin(); it != discovered_instances.end(); ) {
+                    auto age = std::chrono::duration_cast<std::chrono::seconds>(now - it->lastSeen).count();
+                    if (age > 10) {
+                        it = discovered_instances.erase(it);
+                        continue;
+                    }
+                    if (!first) body += ",";
+                    body += "{\"ip\":\"" + it->ip + "\",\"ssePort\":" + std::to_string(it->ssePort) +
+                            ",\"game\":\"" + it->game + "\",\"age\":" + std::to_string(age) + "}";
+                    first = false;
+                    ++it;
+                }
+            }
+            body += "]}";
+            std::string response =
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: application/json\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: " + std::to_string(body.length()) + "\r\n"
+                "\r\n" + body;
+            send(client_fd, response.c_str(), response.length(), 0);
+            close(client_fd);
+            return;
+        }
+
         // API info endpoint for QR code pairing
         if (request.find("GET /api/info") != std::string::npos) {
             std::string ip = getLocalIPAddress();
@@ -548,6 +584,101 @@ void WebSocketServer::broadcastStateSync(const std::string& json_data) {
     }
 
     std::cout << "State sync message sent to " << state_sync_clients.size() << " clients" << std::endl;
+}
+
+void WebSocketServer::discoveryListenerThread() {
+    int disc_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (disc_fd < 0) {
+        std::cerr << "Discovery listener: socket creation failed" << std::endl;
+        return;
+    }
+
+    int opt = 1;
+    setsockopt(disc_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(20780);
+
+    if (bind(disc_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        std::cerr << "Discovery listener: bind to port 20780 failed" << std::endl;
+        close(disc_fd);
+        return;
+    }
+
+    std::cout << "Discovery listener started on UDP port 20780" << std::endl;
+
+    // Set receive timeout so we can check running flag
+#ifdef _WIN32
+    DWORD timeout_ms = 2000;
+    setsockopt(disc_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout_ms, sizeof(timeout_ms));
+#else
+    struct timeval tv;
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
+    setsockopt(disc_fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+#endif
+
+    char buf[512];
+    while (running) {
+        struct sockaddr_in sender{};
+        socklen_t sender_len = sizeof(sender);
+        int n = recvfrom(disc_fd, buf, sizeof(buf) - 1, 0, (struct sockaddr*)&sender, &sender_len);
+        if (n <= 0) continue;
+        buf[n] = '\0';
+
+        std::string data(buf);
+        if (data.find("\"service\":\"atlas-core\"") == std::string::npos) continue;
+
+        // Parse beacon fields
+        DiscoveredInstance inst;
+        inst.ssePort = 8080;
+        inst.lastSeen = std::chrono::steady_clock::now();
+
+        size_t ip_start = data.find("\"ip\":\"");
+        if (ip_start != std::string::npos) {
+            ip_start += 6;
+            size_t ip_end = data.find("\"", ip_start);
+            if (ip_end != std::string::npos) inst.ip = data.substr(ip_start, ip_end - ip_start);
+        }
+
+        size_t port_start = data.find("\"ssePort\":");
+        if (port_start != std::string::npos) {
+            port_start += 10;
+            try { inst.ssePort = std::stoi(data.substr(port_start)); } catch (...) {}
+        }
+
+        size_t game_start = data.find("\"game\":\"");
+        if (game_start != std::string::npos) {
+            game_start += 8;
+            size_t game_end = data.find("\"", game_start);
+            if (game_end != std::string::npos) inst.game = data.substr(game_start, game_end - game_start);
+        }
+
+        if (inst.ip.empty() || inst.ip == "127.0.0.1") continue;
+
+        // Update or add instance
+        {
+            std::lock_guard<std::mutex> lock(discovery_mutex);
+            bool found = false;
+            for (auto& existing : discovered_instances) {
+                if (existing.ip == inst.ip && existing.ssePort == inst.ssePort) {
+                    existing.game = inst.game;
+                    existing.lastSeen = inst.lastSeen;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                discovered_instances.push_back(inst);
+                std::cout << "Discovered Atlas Core at " << inst.ip << ":" << inst.ssePort
+                          << " (game: " << inst.game << ")" << std::endl;
+            }
+        }
+    }
+
+    close(disc_fd);
 }
 
 void WebSocketServer::sendCORSResponse(int client_fd) {

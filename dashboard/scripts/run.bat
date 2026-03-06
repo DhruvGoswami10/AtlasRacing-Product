@@ -8,7 +8,7 @@ echo.
 
 REM Set MSYS2 environment
 set MSYSTEM=MINGW64
-set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+set PATH=C:\msys64\mingw64\bin;%PATH%
 set TMPDIR=C:\temp
 set TMP=C:\temp
 set TEMP=C:\temp
@@ -101,7 +101,7 @@ if "%FRONTEND_ONLY%"=="true" (
 REM Start full dashboard
 echo Starting full dashboard...
 start /B cmd /C call :start_backend
-timeout /t 3 /nobreak >nul
+call :sleep_seconds 3
 call :start_frontend
 goto :eof
 
@@ -134,6 +134,10 @@ if not exist "node_modules" (
 )
 
 REM Start development server
+set "BROWSER=none"
+set "DISABLE_ESLINT_PLUGIN=true"
+set "NODE_NO_WARNINGS=1"
+
 if "%NO_ELECTRON%"=="true" (
     echo Starting web version...
     npm start
@@ -143,4 +147,11 @@ if "%NO_ELECTRON%"=="true" (
 )
 
 cd ..
+goto :eof
+
+:sleep_seconds
+set "_sleep=%~1"
+if "%_sleep%"=="" goto :eof
+set /a "_ping_count=%_sleep%+1"
+ping 127.0.0.1 -n %_ping_count% >nul
 goto :eof

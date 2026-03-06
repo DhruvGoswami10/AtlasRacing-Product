@@ -7,7 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
-import { TelemetrySSE } from '../services/sse';
+import { TelemetrySSE, discoverBackendHost } from '../services/sse';
 import type {
   DashboardState,
   MultiCarTelemetryData,
@@ -81,7 +81,8 @@ export function TelemetryProvider({ children }: { children: React.ReactNode }) {
       lastError: undefined
     }));
 
-    const sse = new TelemetrySSE();
+    const host = await discoverBackendHost();
+    const sse = new TelemetrySSE(`http://${host}:8080/telemetry`);
 
     sse.onData((telemetry: TelemetryData) => {
       setState(prev => ({

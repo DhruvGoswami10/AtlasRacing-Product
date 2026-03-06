@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, useParams } from 'react-router-dom';
 
 import { F1ProDashboard } from './components/F1ProDashboard';
 import { GTEnduranceDashboard } from './components/GTEnduranceDashboard';
@@ -180,11 +180,43 @@ function AppContent() {
   );
 }
 
+// Standalone dashboard view for popup windows — no selection UI, no back button
+function PopupDashboard() {
+  const { id } = useParams<{ id: string }>();
+  const { connectionStatus, connect } = useTelemetry();
+
+  useEffect(() => {
+    if (connectionStatus === 'disconnected') {
+      connect().catch(() => undefined);
+    }
+  }, [connectionStatus, connect]);
+
+  const dashboard = (() => {
+    switch (id) {
+      case 'f1-pro': return <F1ProDashboard />;
+      case 'gt-endurance': return <GTEnduranceDashboard />;
+      case 'live-analysis': return <LiveRaceAnalysis />;
+      case 'dev-mode': return <DevModeDashboard />;
+      case 'gp-race-board': return <GPRaceBoard />;
+      case 'dashboard-builder': return <DashboardBuilder />;
+      case 'minimal-hud': return <MinimalHUD />;
+      default: return <div className="flex h-screen items-center justify-center text-white">Unknown dashboard</div>;
+    }
+  })();
+
+  return (
+    <div className="dark h-screen w-screen overflow-hidden bg-background">
+      {dashboard}
+    </div>
+  );
+}
+
 // Root App component with HashRouter
 export default function App() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="/dashboard/:id" element={<PopupDashboard />} />
         <Route path="*" element={<AppContent />} />
       </Routes>
     </HashRouter>

@@ -2,13 +2,88 @@ import { TelemetryData, SessionData, MultiCarTelemetryData, RaceEvent, CarSetupD
 
 const DEBUG_TELEMETRY = process.env.NODE_ENV !== 'production';
 
+// Resolve backend host from query param or localStorage, falling back to current hostname.
+function resolveBackendHost(): string {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('backend') || localStorage.getItem('atlas-backend-host') || window.location.hostname;
+}
+
+// Auto-discover Atlas Core instances via the local backend's /api/discover endpoint.
+// Falls back to localStorage then current hostname if discovery fails.
+export async function discoverBackendHost(): Promise<string> {
+  // 1. Explicit query param always wins
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = params.get('backend');
+  if (fromParam) return fromParam;
+
+  // 2. User-saved host in localStorage
+  const stored = localStorage.getItem('atlas-backend-host');
+  if (stored) return stored;
+
+  // 3. Try auto-discovery from local backend
+  try {
+    const res = await fetch(`http://${window.location.hostname}:8080/api/discover`, {
+      signal: AbortSignal.timeout(2000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.instances && data.instances.length > 0) {
+        const validInstances = data.instances.filter((instance: any) =>
+          typeof instance?.ip === 'string' && instance.ip.length > 0
+        );
+        if (validInstances.length > 0) {
+          const nonLoopback = validInstances.find((instance: any) => instance.ip !== '127.0.0.1');
+          const best = nonLoopback || validInstances[0];
+          localStorage.setItem('atlas-backend-host', best.ip);
+          return best.ip;
+        }
+      }
+    }
+  } catch {
+    // Discovery unavailable, fall through
+  }
+
+  // 4. If discovery is unavailable, try direct info endpoint on current hostname.
+  // Atlas Core exposes /api/info even without the full backend.
+  try {
+    const infoRes = await fetch(`http://${window.location.hostname}:8080/api/info`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (infoRes.ok) {
+      const info = await infoRes.json();
+      if (typeof info?.ip === 'string' && info.ip.length > 0) {
+        localStorage.setItem('atlas-backend-host', info.ip);
+        return info.ip;
+      }
+    }
+  } catch {
+    // Ignore and use fallback
+  }
+
+  // 5. Default to current hostname
+  return window.location.hostname;
+}
+
+// Helpers for managing the stored backend host
+export function getStoredBackendHost(): string | null {
+  return localStorage.getItem('atlas-backend-host');
+}
+
+export function setBackendHost(host: string): void {
+  localStorage.setItem('atlas-backend-host', host);
+}
+
+export function clearBackendHost(): void {
+  localStorage.removeItem('atlas-backend-host');
+}
+
 export class TelemetrySSE {
   private eventSource: EventSource | null = null;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = Infinity;
   private eventIdCounter = 0;
-  
+
   private onDataCallback?: (data: TelemetryData) => void;
   private onSessionCallback?: (session: SessionData) => void;
   private onMultiCarCallback?: (data: MultiCarTelemetryData) => void;
@@ -17,9 +92,9 @@ export class TelemetrySSE {
   private onTyreSetsCallback?: (tyreSets: TyreSetsData) => void;
   private onLiveAnalysisCallback?: (analysis: any) => void;
   private onStatusCallback?: (status: 'connected' | 'disconnected' | 'error') => void;
-  
+
   constructor(
-    private url: string = 'http://localhost:8080/telemetry',
+    private url: string = `http://${resolveBackendHost()}:8080/telemetry`,
     private reconnectDelay: number = 2000
   ) {
     // Reconnect immediately when the user returns to the tab/app

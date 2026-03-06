@@ -5,7 +5,6 @@
 
 AccurateLapPredictor::AccurateLapPredictor() : current_lap_number(0), last_analysis_time(0) {
     initializeTireCurves();
-    std::cout << "🧠 Accurate Lap Predictor initialized for Phase 7B" << std::endl;
 }
 
 AccurateLapPredictor::CompleteAnalysis AccurateLapPredictor::updateAnalysis(const DataProcessor::ProcessedTelemetry& telemetry) {
@@ -42,10 +41,6 @@ AccurateLapPredictor::CompleteAnalysis AccurateLapPredictor::updateAnalysis(cons
     
     result.timestamp_ms = now;
     result.valid = true;
-    
-    std::cout << "🔮 Lap Prediction: " << std::fixed << std::setprecision(3) 
-              << result.prediction.next_lap_time << "s (confidence: " 
-              << (result.prediction.confidence * 100) << "%)" << std::endl;
     
     return result;
 }
@@ -231,8 +226,6 @@ void AccurateLapPredictor::filterValidLaps() {
         }
     }
     
-    std::cout << "📊 Valid laps: " << valid_laps_only.size() 
-              << " / " << lap_history.size() << " total" << std::endl;
 }
 
 float AccurateLapPredictor::calculateConsistency() {
@@ -305,7 +298,6 @@ void AccurateLapPredictor::initializeTireCurves() {
     tire_deg_curves["INTERMEDIATE"] = {0.0f, 0.02f, 0.05f, 0.1f, 0.16f, 0.24f, 0.34f, 0.46f, 0.6f};
     tire_deg_curves["WET"] = {0.0f, 0.01f, 0.03f, 0.06f, 0.1f, 0.15f, 0.21f, 0.28f, 0.36f};
     
-    std::cout << "🏎️ Tire degradation curves initialized for all compounds" << std::endl;
 }
 
 std::string AccurateLapPredictor::getCompoundFromTelemetry(const DataProcessor::ProcessedTelemetry& telemetry) {

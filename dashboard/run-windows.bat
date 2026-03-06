@@ -8,7 +8,7 @@ echo.
 
 REM Set environment
 set MSYSTEM=MINGW64
-set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+set PATH=C:\msys64\mingw64\bin;%PATH%
 set TMPDIR=C:\temp
 set TMP=C:\temp
 set TEMP=C:\temp
@@ -37,10 +37,10 @@ if not exist "backend\build\atlas_racing_server.exe" (
 )
 
 echo Starting backend server...
-start "Atlas Racing Backend" cmd /K "cd backend\build && (if exist atlas_racing_server.exe (atlas_racing_server.exe) else (telemetry_server.exe))"
+start "Atlas Racing Backend" /D "%PROJECT_DIR%\backend\build" cmd /K "chcp 65001>nul && (if exist atlas_racing_server.exe (atlas_racing_server.exe) else (telemetry_server.exe))"
 
 echo Waiting for backend to start...
-timeout /t 2 /nobreak >nul
+call :sleep_seconds 2
 
 echo Cleaning up any existing React dev server...
 REM Kill any existing node processes running on port 3000
@@ -50,19 +50,17 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
 )
 
 echo Starting React frontend...
-cd /d "%PROJECT_DIR%\frontend"
-
 REM Clear webpack cache to ensure fresh build
 echo Clearing webpack cache...
-if exist "node_modules\.cache" (
-    rd /s /q "node_modules\.cache" 2>nul
+if exist "%PROJECT_DIR%\frontend\node_modules\.cache" (
+    rd /s /q "%PROJECT_DIR%\frontend\node_modules\.cache" 2>nul
 )
 
 REM Start React dev server and open browser
-start "Atlas Racing Frontend" cmd /K "npm start"
+start "Atlas Racing Frontend" /D "%PROJECT_DIR%\frontend" cmd /K "chcp 65001>nul && set \"BROWSER=none\" && set \"DISABLE_ESLINT_PLUGIN=true\" && set \"NODE_NO_WARNINGS=1\" && npm start"
 
 REM Wait for React to start, then open browser
-timeout /t 5 /nobreak >nul
+call :sleep_seconds 5
 start http://localhost:3000
 
 echo.
@@ -77,3 +75,12 @@ echo   F1 24/25: Set UDP telemetry to port 20777
 echo.
 echo Close all service windows to stop the dashboard.
 pause
+
+goto :eof
+
+:sleep_seconds
+set "_sleep=%~1"
+if "%_sleep%"=="" goto :eof
+set /a "_ping_count=%_sleep%+1"
+ping 127.0.0.1 -n %_ping_count% >nul
+goto :eof

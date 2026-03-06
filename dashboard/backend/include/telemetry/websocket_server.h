@@ -6,7 +6,9 @@
 #include <mutex>
 #include <chrono>
 #include <algorithm>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <map>
 
 class WebSocketServer {
@@ -26,6 +28,16 @@ private:
     // State sync storage
     std::map<std::string, std::string> dashboard_states;
 
+    // Discovery: Atlas Core instances found on the network
+    struct DiscoveredInstance {
+        std::string ip;
+        int ssePort;
+        std::string game;
+        std::chrono::steady_clock::time_point lastSeen;
+    };
+    std::vector<DiscoveredInstance> discovered_instances;
+    std::mutex discovery_mutex;
+
     bool running;
 
 public:
@@ -44,6 +56,9 @@ private:
     void serverLoop();
     void handleNewConnection(int client_fd);
     void removeConnection(int client_fd);
+
+    // Discovery
+    void discoveryListenerThread();
 
     // State sync methods
     void handleStateSyncSSE(int client_fd, const std::string& request);

@@ -492,7 +492,7 @@ public:
             return false;
         }
         
-        std::cout << "✓ Server initialized successfully!" << std::endl;
+        std::cout << "[INFO] Server initialized successfully" << std::endl;
         return true;
     }
     
@@ -504,12 +504,13 @@ public:
         }
         last_game_check = now;
         
-        // Check for active games with detailed logging
+        // Optional verbose game detection logs
+        static constexpr bool kVerboseGameDetection = false;
         static int debug_counter = 0;
-        bool show_debug = (++debug_counter % 10 == 0); // Every ~20 seconds
+        bool show_debug = kVerboseGameDetection && (++debug_counter % 10 == 0); // Every ~20 seconds
         
         if (show_debug) {
-            std::cout << "🔍 Scanning for active games..." << std::endl;
+            std::cout << "Scanning for active games..." << std::endl;
         }
         
 #ifdef _WIN32
@@ -529,7 +530,7 @@ public:
             
             if (ac_connected || ac_parser->initialize()) {
                 if (current_game != GAME_AC) {
-                    std::cout << "✅ Successfully detected and connected to Assetto Corsa!" << std::endl;
+                    std::cout << "[INFO] Detected and connected to Assetto Corsa" << std::endl;
                     ac_parser->logConnectionInfo();
                     current_game = GAME_AC;
                 } else if (show_debug) {
@@ -551,7 +552,7 @@ public:
             bool acc_connected = acc_parser->isConnected();
             if (acc_connected || acc_parser->initialize()) {
                 if (current_game != GAME_ACC) {
-                    std::cout << "✅ Successfully detected and connected to Assetto Corsa Competizione!" << std::endl;
+                    std::cout << "[INFO] Detected and connected to Assetto Corsa Competizione" << std::endl;
                     current_game = GAME_ACC;
                 }
                 return GAME_ACC;
@@ -568,7 +569,7 @@ public:
             bool ats_connected = ats_parser->isConnected();
             if (ats_connected || ats_parser->initialize()) {
                 if (current_game != GAME_ATS) {
-                    std::cout << "✅ Successfully detected and connected to American Truck Simulator!" << std::endl;
+                    std::cout << "[INFO] Detected and connected to American Truck Simulator" << std::endl;
                     current_game = GAME_ATS;
                 }
                 return GAME_ATS;
@@ -658,11 +659,12 @@ public:
                 int bytes_received = udp_receiver.receivePacket(udp_buffer);
 
                 if (bytes_received > 0) {
+                    static constexpr bool kVerboseF1PacketDebug = false;
                     // Debug: Log first few packets to see what we're receiving
                     static int packet_debug_count = 0;
-                    if (packet_debug_count < 20 && bytes_received >= sizeof(PacketHeader)) {
+                    if (kVerboseF1PacketDebug && packet_debug_count < 20 && bytes_received >= sizeof(PacketHeader)) {
                         PacketHeader* header = (PacketHeader*)udp_buffer;
-                        std::cout << "📦 UDP Packet #" << packet_debug_count++ << ": "
+                        std::cout << "UDP Packet #" << packet_debug_count++ << ": "
                                   << "format=" << header->m_packetFormat
                                   << ", year=" << (int)header->m_gameYear
                                   << ", id=" << (int)header->m_packetId
@@ -674,11 +676,11 @@ public:
 
                     // Debug: Log validation result for first few attempts
                     static int validationLogCount = 0;
-                    if (validationLogCount < 25) {
+                    if (kVerboseF1PacketDebug && validationLogCount < 25) {
                         if (!isValid) {
-                            std::cout << "❌ Packet #" << validationLogCount << " validation FAILED" << std::endl;
+                            std::cout << "Packet #" << validationLogCount << " validation FAILED" << std::endl;
                         } else {
-                            std::cout << "✅ Packet #" << validationLogCount << " validation PASSED!" << std::endl;
+                            std::cout << "Packet #" << validationLogCount << " validation PASSED" << std::endl;
                         }
                         validationLogCount++;
                     }
@@ -688,9 +690,9 @@ public:
                             // Detect which F1 version
                             PacketHeader* header = (PacketHeader*)udp_buffer;
                             if (header->m_gameYear == 25) {
-                                std::cout << "✓ Detected F1 25 telemetry data!" << std::endl;
+                                std::cout << "[INFO] Detected F1 25 telemetry data" << std::endl;
                             } else {
-                                std::cout << "✓ Detected F1 24 telemetry data!" << std::endl;
+                                std::cout << "[INFO] Detected F1 24 telemetry data" << std::endl;
                             }
                             current_game = GAME_F1_24;
                         }
@@ -713,13 +715,14 @@ public:
         uint8_t game_year = F1_24_Parser::getGameYear(buffer);
         data_processor.setGameIdentification(packet_format, game_year);
 
-        // Debug: Log packet IDs we're receiving
+        // Optional verbose F1 packet counters
+        static constexpr bool kVerboseF1PacketDebug = false;
         static int packetCounts[20] = {0};
         static int logCounter = 0;
-        if (packet_id < 20) {
+        if (kVerboseF1PacketDebug && packet_id < 20) {
             packetCounts[packet_id]++;
             if (logCounter++ % 300 == 0) {  // Every ~5 seconds
-                std::cout << "📊 Packet counts: ";
+                std::cout << "Packet counts: ";
                 for (int i = 0; i <= 15; i++) {
                     if (packetCounts[i] > 0) {
                         std::cout << "ID" << i << "=" << packetCounts[i] << " ";
@@ -759,7 +762,7 @@ public:
                         
                         // Log analysis data if available
                         if (analysis.valid && lap_predictor.hasValidData()) {
-                            std::cout << "📊 Analysis: Next lap=" << std::fixed << std::setprecision(3) << analysis.prediction.next_lap_time 
+                            std::cout << "[ANALYSIS] Next lap=" << std::fixed << std::setprecision(3) << analysis.prediction.next_lap_time 
                                       << "s, Confidence=" << (analysis.prediction.confidence * 100) << "%"
                                       << ", Consistency=" << analysis.session.consistency_score << "%" << std::endl;
                         }
