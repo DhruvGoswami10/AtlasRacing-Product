@@ -2,7 +2,7 @@
   <img src="dashboard/resources/Atlas-logo-white-txt.png" alt="Atlas Racing" width="280" />
 </p>
 
-<h3 align="center">Real-time sim racing telemetry with an AI Race Engineer</h3>
+<h3 align="center">Real-time multi-game telemetry with an AI Race Engineer</h3>
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> &bull;
@@ -25,7 +25,7 @@
 
 ---
 
-Atlas Racing is a **free, open-source** telemetry dashboard for sim racers. It captures live data from your game, displays it across professional-grade dashboards, and optionally connects to an **AI Race Engineer** that gives you real-time pit strategy, tyre advice, and tactical calls — just like a real pit wall.
+Atlas Racing is a **free, open-source** telemetry platform for sim racers. It captures live data from F1/AC/ACC/ATS sessions, displays it across professional-grade dashboards, and optionally connects to an **AI Race Engineer** for live strategy and tactical calls. With Atlas Core, it also supports clean cross-device telemetry over LAN.
 
 <p align="center">
   <img src="dashboard/resources/Endurance.png" alt="Endurance Dashboard" width="720" />
@@ -54,7 +54,16 @@ cd dashboard/frontend
 npm install
 ```
 
-### 2. Start the backend
+### 2. Quick launch (Windows, recommended)
+
+```bash
+cd dashboard
+run-windows.bat
+```
+
+This starts backend + frontend in separate terminals and opens the dashboard in your browser.
+
+### 3. Start the backend (manual)
 
 ```bash
 # Pre-built binary (easiest):
@@ -70,7 +79,7 @@ cmake .. && cmake --build . --config Release
 
 The backend listens on **port 8080** (SSE) and **port 20777** (UDP from F1 games).
 
-### 3. Start the frontend
+### 4. Start the frontend (manual)
 
 ```bash
 cd dashboard/frontend
@@ -79,7 +88,7 @@ npm start
 
 Open **http://localhost:3000** in your browser. A built-in **Setup Guide** walks you through connecting your game on first launch.
 
-### 4. Run Atlas Core (for AC/ACC/ATS and cross-device setups)
+### 5. Run Atlas Core (for AC/ACC/ATS and cross-device setups)
 
 Atlas Core is a lightweight telemetry forwarder that can run on the same PC as Dashboard, or on another device on your LAN.
 
@@ -99,7 +108,7 @@ Atlas Core endpoints:
 - `http://<atlas-core-ip>:8080/api/info`
 - `http://<atlas-core-ip>:8080/api/discover`
 
-### 5. Configure your game
+### 6. Configure your game
 
 <details>
 <summary><strong>F1 24 / F1 25</strong></summary>
@@ -116,7 +125,10 @@ Atlas Core endpoints:
 <details>
 <summary><strong>Assetto Corsa</strong></summary>
 
-Atlas Racing reads AC telemetry via **shared memory** — no extra configuration needed. Just start a session and the data flows automatically through the AtlasLink bridge.
+Atlas Racing reads AC telemetry via shared memory.
+
+- Same-PC setup: AtlasLink bridge works.
+- Cross-device setup: Atlas Core is recommended.
 
 </details>
 
@@ -127,7 +139,7 @@ Use **Atlas Core** to read shared memory and forward telemetry.
 
 </details>
 
-### 6. (Optional) Enable AI Race Engineer
+### 7. (Optional) Enable AI Race Engineer
 
 Create a `.env.local` file in `dashboard/frontend/`:
 
@@ -170,6 +182,12 @@ The AI features are entirely optional. Everything else works without an API key.
 ## Atlas Core
 
 Atlas Core is the lightweight telemetry forwarder used when games do not emit native UDP telemetry (or when you want clean cross-device forwarding).
+
+<p align="center">
+  <img src="Atlas_Core-noBG.png" alt="Atlas Core" width="300" />
+  <br/>
+  <em>Atlas Core — lightweight telemetry forwarder for AC/ACC/ATS and LAN-connected dashboards.</em>
+</p>
 
 Key behavior:
 - Detects supported games and reads shared memory
