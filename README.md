@@ -8,6 +8,7 @@
   <a href="#quick-start">Quick Start</a> &bull;
   <a href="#features">Features</a> &bull;
   <a href="#supported-games">Games</a> &bull;
+  <a href="#atlas-core">Atlas Core</a> &bull;
   <a href="#dashboards">Dashboards</a> &bull;
   <a href="#architecture">Architecture</a> &bull;
   <a href="#contributing">Contributing</a> &bull;
@@ -39,7 +40,7 @@ Atlas Racing is a **free, open-source** telemetry dashboard for sim racers. It c
 | Requirement | Details |
 |-------------|---------|
 | **OS** | Windows 10 or 11 |
-| **Game** | EA Sports F1 24/25, or Assetto Corsa |
+| **Game** | EA Sports F1 24/25, Assetto Corsa, ACC, or ATS |
 | **Node.js** | [v18 or later](https://nodejs.org/) |
 | **OpenAI API key** | Optional — only needed for the AI Race Engineer |
 
@@ -64,7 +65,7 @@ cd dashboard/backend/build
 cd dashboard/backend
 mkdir build && cd build
 cmake .. && cmake --build . --config Release
-./atlas_backend.exe
+./atlas_racing_server.exe
 ```
 
 The backend listens on **port 8080** (SSE) and **port 20777** (UDP from F1 games).
@@ -78,7 +79,27 @@ npm start
 
 Open **http://localhost:3000** in your browser. A built-in **Setup Guide** walks you through connecting your game on first launch.
 
-### 4. Configure your game
+### 4. Run Atlas Core (for AC/ACC/ATS and cross-device setups)
+
+Atlas Core is a lightweight telemetry forwarder that can run on the same PC as Dashboard, or on another device on your LAN.
+
+```bash
+cd tools/atlas-core
+build.bat
+.\build\atlas-core.exe
+```
+
+Common use:
+- **PC B** runs Atlas Core (where the game is running)
+- **PC A** runs Dashboard (frontend + backend)
+- Dashboard connects to PC B host via auto-discovery or manual host selection
+
+Atlas Core endpoints:
+- `http://<atlas-core-ip>:8080/telemetry`
+- `http://<atlas-core-ip>:8080/api/info`
+- `http://<atlas-core-ip>:8080/api/discover`
+
+### 5. Configure your game
 
 <details>
 <summary><strong>F1 24 / F1 25</strong></summary>
@@ -99,7 +120,14 @@ Atlas Racing reads AC telemetry via **shared memory** — no extra configuration
 
 </details>
 
-### 5. (Optional) Enable AI Race Engineer
+<details>
+<summary><strong>ACC / ATS</strong></summary>
+
+Use **Atlas Core** to read shared memory and forward telemetry.
+
+</details>
+
+### 6. (Optional) Enable AI Race Engineer
 
 Create a `.env.local` file in `dashboard/frontend/`:
 
@@ -119,8 +147,9 @@ The AI features are entirely optional. Everything else works without an API key.
 | **Live Telemetry** | Tyre wear, fuel, ERS, lap times, gaps, weather — all in real time via UDP/shared memory |
 | **AI Race Engineer** | LLM-powered strategist providing pit strategy, ERS management, and tactical advice |
 | **Broadcasting Engine** | Automated race event detection — safety cars, battles, weather changes, tyre warnings (16 event types) |
+| **Atlas Core Bridge** | Lightweight AC/ACC/ATS forwarder with `/telemetry`, `/api/info`, `/api/discover`, and LAN discovery beacon |
 | **5 Dashboards** | F1 Pro, Endurance, Live Analysis, Race Director, and Dev Mode |
-| **Multi-Game** | F1 24/25 (UDP, 16 packet types) and Assetto Corsa (shared memory, 144 fields) |
+| **Multi-Game** | F1 24/25 (UDP), Assetto Corsa, ACC, and ATS |
 | **Voice System** | Whisper STT + Edge-TTS / ElevenLabs for hands-free interaction |
 
 ---
@@ -131,8 +160,29 @@ The AI features are entirely optional. Everything else works without an API key.
 |------|--------|------------|
 | EA Sports F1 24 | Fully supported | UDP port 20777 |
 | EA Sports F1 25 | Fully supported | UDP port 20777 |
-| Assetto Corsa | Fully supported | Shared memory (AtlasLink) |
-| ACC, iRacing, rFactor 2 | Planned | — |
+| Assetto Corsa | Fully supported | Shared memory (AtlasLink or Atlas Core) |
+| Assetto Corsa Competizione (ACC) | Supported via Atlas Core | Shared memory -> Atlas Core |
+| American Truck Simulator (ATS) | Supported via Atlas Core | Shared memory -> Atlas Core |
+| iRacing, rFactor 2 | Planned | — |
+
+---
+
+## Atlas Core
+
+Atlas Core is the lightweight telemetry forwarder used when games do not emit native UDP telemetry (or when you want clean cross-device forwarding).
+
+Key behavior:
+- Detects supported games and reads shared memory
+- Forwards telemetry over HTTP SSE
+- Supports LAN auto-discovery (`/api/discover` + UDP beacon on `20780`)
+- Exposes health/info endpoint (`/api/info`)
+
+Quick run:
+
+```bash
+cd tools/atlas-core
+.\build\atlas-core.exe --sse-port 8080
+```
 
 ---
 
@@ -177,23 +227,16 @@ Raw telemetry viewer showing every field the backend sends. Useful for developme
 </tr>
 </table>
 
-<p align="center">
-  <img src="dashboard/resources/dashboard-designs/advanced_dashboard.png" alt="F1 Dashboard" width="720" />
-  <br/>
-  <em>F1 Dashboard — advanced layout with all telemetry widgets</em>
-</p>
-
----
-
 ## Architecture
 
 ```
-F1 25 Game ──UDP :20777──► C++ Backend ──SSE :8080──► React Dashboard
-                                                           │
-Assetto Corsa ──shared memory──► AtlasLink ──►             │
-                                                           ▼
-                                                   AI Race Engineer
-                                                    (OpenAI GPT)
+F1 24/25 Game ──UDP :20777──────► C++ Backend ──SSE :8080──► React Dashboard
+AC/ACC/ATS ──shared memory──► Atlas Core ──SSE :8080──────► (selected backend host)
+                                           └─ /api/info /api/discover + beacon :20780
+                                                             │
+                                                             ▼
+                                                     AI Race Engineer
+                                                      (OpenAI GPT)
 ```
 
 ### Project Structure
@@ -209,6 +252,7 @@ atlas-racing/
 │   │       ├── context/     # React context (auth, telemetry)
 │   │       └── hooks/       # Custom hooks
 │   └── integrations/        # Game bridges (AtlasLink for Assetto Corsa)
+├── tools/atlas-core/        # Lightweight shared-memory forwarder (AC/ACC/ATS)
 ├── tester/                  # Packet recorder/replayer for testing
 ├── tools/                   # Utility scripts
 └── docs/                    # Documentation and roadmap
@@ -262,7 +306,10 @@ The frontend auto-reconnects once the backend is up.
 
 1. Make sure your game is running and you're in a session (not the main menu).
 2. For F1 games: check that UDP Telemetry is set to **On** with port **20777**.
-3. For AC: ensure you're using the AtlasLink integration.
+3. For AC/ACC/ATS via Atlas Core: verify Dashboard host is set to the Atlas Core device IP.
+4. Validate endpoints from Dashboard device:
+   - `http://<atlas-core-ip>:8080/api/info`
+   - `http://<atlas-core-ip>:8080/telemetry`
 
 </details>
 
